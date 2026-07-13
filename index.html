@@ -1547,4 +1547,12 @@ document.getElementById('adminLink').onclick = ()=>{
 ['fTeam','fRole','fSort'].forEach(id=>document.getElementById(id).addEventListener('input',render));
 let __qT; document.getElementById('q').addEventListener('input',()=>{ clearTimeout(__qT); __qT=setTimeout(render,150); });
 document.getElementById('vCards').onclick=()=>{view='cards';toggleView();};
-d
+document.getElementById('vTable').onclick=()=>{view='table';toggleView();};
+function toggleView(){
+  document.getElementById('vCards').classList.toggle('on',view==='cards');
+  document.getElementById('vTable').classList.toggle('on',view==='table');
+  render();
+}
+</script>
+</body>
+</html>
