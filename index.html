@@ -17,6 +17,7 @@ body{background:radial-gradient(1150px 560px at 50% -10%, #1a3742 0%, transparen
 ::selection{background:rgba(47,194,165,.35)}
 a{color:var(--acc)}
 header{display:flex;align-items:center;gap:10px;padding:14px 22px;background:linear-gradient(180deg,#13202a,#0d151b);border-bottom:1px solid var(--line);box-shadow:0 4px 20px rgba(0,0,0,.35);position:sticky;top:0;z-index:50;flex-wrap:wrap}
+header::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--acc),var(--acc2),transparent);opacity:.55}
 .logo{font-size:22px;font-weight:800;letter-spacing:.5px}
 .logo b{color:var(--acc)}
 .logo span{font-weight:300;color:var(--dim)}
@@ -70,7 +71,7 @@ main{max-width:1200px;margin:0 auto;padding:20px}
 .card .ovr{position:absolute;top:13px;right:15px;font-size:32px;font-weight:900;line-height:1;text-align:center}
 .card .ovr small{display:block;font-size:10px;font-weight:600;color:var(--dim);letter-spacing:1px}
 .tier-s .ovr{color:#f8d878;text-shadow:0 0 16px rgba(248,216,120,.55)}.tier-a .ovr{color:#c9b8ff;text-shadow:0 0 16px rgba(201,184,255,.5)}.tier-b .ovr{color:#7fd4ff;text-shadow:0 0 14px rgba(127,212,255,.45)}.tier-c .ovr{color:#9fb2bd}
-.card .head{display:flex;gap:12px;align-items:center;margin-bottom:10px;padding-right:46px}
+.card .head{display:flex;gap:12px;align-items:center;margin-bottom:10px;padding-right:58px}
 .card .head .txt{min-width:0}
 .card .name{font-size:18px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ricon{vertical-align:-3px;display:inline-block;object-fit:contain}
@@ -80,8 +81,11 @@ main{max-width:1200px;margin:0 auto;padding:20px}
 .avatar.sm{width:36px;height:36px;border-radius:7px;font-size:11px;display:inline-flex;vertical-align:middle;margin-right:8px}
 .avatar.lg{width:110px;height:110px;border-radius:12px;font-size:26px}
 .card .rolebadge{display:inline-block;background:var(--bg);border:1px solid var(--line);color:var(--acc2);font-size:11px;padding:2px 8px;border-radius:4px;margin-bottom:10px;font-weight:700}
-.card .cmpbtn{position:absolute;right:12px;top:52px;background:var(--bg);border:1px solid var(--line);color:var(--dim);border-radius:6px;font-size:11px;padding:3px 8px;cursor:pointer}
-.card .cmpbtn:hover,.card.selected .cmpbtn{color:var(--acc2);border-color:var(--acc2)}
+.card .cmpbtn{flex:none;background:var(--bg);border:1px solid var(--line);color:var(--dim);border-radius:6px;font-size:11px;padding:3px 9px;cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s,background .15s}
+.card .cmpbtn:hover,.card.selected .cmpbtn{color:#08120f;border-color:var(--acc2);background:linear-gradient(135deg,var(--acc2),#e0a52f);font-weight:700}
+.card .rankrow{margin:4px 0 11px;min-height:22px;display:flex}
+.card .cardfoot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--dim)}
+.card .cardfoot .wrtxt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .card .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;font-size:11px}
 .card .stats div{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.18));border-radius:8px;padding:5px 2px;text-align:center;border:1px solid rgba(255,255,255,.05)}
 .card .stats div.s-top{border-color:rgba(248,216,120,.55);box-shadow:inset 0 0 12px rgba(248,216,120,.12),0 0 8px rgba(248,216,120,.18)}
@@ -103,7 +107,8 @@ td.num{font-variant-numeric:tabular-nums}
 .chip-s{color:#f8d878}.chip-a{color:#c9b8ff}.chip-b{color:#7fd4ff}.chip-c{color:#9fb2bd}
 .delta-up{color:var(--green);font-size:11px}.delta-dn{color:var(--red);font-size:11px}
 .rankbadge{display:inline-block;font-size:11px;font-weight:800;border-radius:5px;padding:2px 8px;margin-left:6px;background:rgba(0,0,0,.3);color:var(--dim)}
-.rankbadge.top{color:#f8d878;border:1px solid #f8d878}
+.rankbadge.top{color:#f8d878;border:1px solid #f8d878;background:linear-gradient(180deg,rgba(248,216,120,.14),rgba(0,0,0,.3))}
+.rankbadge.silver{color:#dfe6ec;border:1px solid #c2ccd4;background:linear-gradient(180deg,rgba(210,220,228,.16),rgba(0,0,0,.3))}
 .rankbadge.role{color:#c9b8ff;border:1px solid #6b5a9e}
 .lowgames{font-size:10.5px;color:var(--dim);font-style:italic}
 .badges{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 2px;min-height:20px}
@@ -157,9 +162,10 @@ td.num{font-variant-numeric:tabular-nums}
 .hist{max-width:900px;margin:0 auto}
 .hist-hero{text-align:center;padding:26px 20px;border-radius:16px;margin-bottom:22px;background:linear-gradient(135deg,rgba(47,194,165,.18),rgba(245,185,66,.12));border:1px solid var(--line)}
 .hist-hero-badge{display:inline-block;font-weight:800;letter-spacing:2px;font-size:12px;color:var(--acc2);border:1px solid var(--acc2);border-radius:20px;padding:3px 12px;margin-bottom:10px}
-.hist-hero h2{font-size:26px;margin-bottom:6px}
+.hist-hero h2{font-size:26px;margin-bottom:6px;text-shadow:0 0 22px rgba(47,194,165,.35)}
 .hist-hero p{color:var(--dim);font-size:14px;max-width:560px;margin:0 auto;line-height:1.6}
-.hist-h{font-size:17px;font-weight:800;margin:26px 0 14px;padding-left:10px;border-left:3px solid var(--acc)}
+.hist-h{font-size:17px;font-weight:800;margin:26px 0 14px;padding-left:12px;position:relative}
+.hist-h::before{content:"";position:absolute;left:0;top:2px;bottom:2px;width:4px;border-radius:3px;background:linear-gradient(180deg,var(--acc),var(--acc2));box-shadow:0 0 10px rgba(47,194,165,.4)}
 .hist-dyn{display:flex;flex-wrap:wrap;gap:10px}
 .dyn-card{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:150px}
 .dyn-card b{display:block;font-size:14px}
@@ -385,6 +391,15 @@ function badgeColor(s){ const pal=["#8a5a00","#7a1f2b","#1f4d7a","#3d6b21","#5b2
 function badgeText(s){ const w=s.trim().split(/\s+/); return (w.map((x,i)=>/^\d+$/.test(x)?x.slice(-2):(i===0?x.slice(0,3):x.slice(0,1)).toUpperCase()).join(""))||s; }
 let adminHash = null;     // hash รหัสแอดมินที่ฝังไว้
 const HISTORY_DEFAULT = {
+  tabName: "📜 History",
+  title: "📜 ประวัติศาสตร์ RoV Pro League",
+  heads: {
+    dynasty: "👑 ราชวงศ์แชมป์",
+    timeline: "🗓 ไทม์ไลน์แชมป์ทุกซีซั่น",
+    music: "🎵 เพลง & คอลแลบศิลปิน",
+    production: "🎬 โปรดักชัน & อีเวนต์",
+    eras: "🎮 ยุคของเมตา & ฮีโร่"
+  },
   intro: "เส้นทาง 17 ซีซั่นของลีกอาชีพ RoV ที่ยิ่งใหญ่ที่สุดในไทย ตั้งแต่ปี 2017 ถึงปัจจุบัน",
   music: [
     {song:"ไม่จบง่าย ๆ", artist:"วง Zeal", season:"RPL 2020 Winter", note:"เพลงร็อกประกอบการแข่งขัน"},
@@ -743,6 +758,7 @@ function assignRanks(list){
 }
 function rankBadge(p){
   if(p.rank===1) return '<span class="rankbadge top">🏆 อันดับ 1 ของทัวร์</span>';
+  if(p.rank===2) return '<span class="rankbadge silver">🥈 อันดับ 2 ของทัวร์</span>';
   if(p.roleRank===1) return '<span class="rankbadge role">🥇 อันดับ 1 ของ '+esc(p.role)+'</span>';
   if(p.rank) return '<span class="rankbadge">#'+p.rank+'</span>';
   return '<span class="lowgames">เกมยังไม่ถึงเกณฑ์จัดอันดับ</span>';
@@ -861,7 +877,7 @@ function buildUI(){
     allTimeKeys.forEach(sn=>barAT.appendChild(makeBadge(sn)));
     const hb=document.createElement('button');
     hb.className="sbadge hist-badge"+(curTab==="__history__"?" on":"");
-    hb.title="ประวัติ RPL"; hb.textContent="📜 History";
+    hb.title="ประวัติ RPL"; hb.textContent=(historyData&&historyData.tabName)||HISTORY_DEFAULT.tabName;
     hb.onclick=()=>{ curTab="__history__"; buildUI(); };
     barAT.appendChild(hb);
     nav.appendChild(hAT); nav.appendChild(barAT);
@@ -1020,20 +1036,22 @@ function renderHistory(){
   const titles = (rpl && rpl.titles) ? rpl.titles : [];
   const music = (historyData&&historyData.music)||[];
   const eras = (historyData&&historyData.eras)||[];
+  const HD = (historyData&&historyData.heads)||{};
+  const hd = (k,def)=>esc(HD[k]||HISTORY_DEFAULT.heads[k]||def);
   let h = `<div class="hist">
     <div class="hist-hero"><div class="hist-hero-badge">10 YEARS</div>
-      <h2>📜 ประวัติศาสตร์ RoV Pro League</h2>
+      <h2>${esc((historyData&&historyData.title)||HISTORY_DEFAULT.title)}</h2>
       <p>${esc((historyData&&historyData.intro)||"")}</p>
     </div>`;
   if(titles.length){
-    h += `<h3 class="hist-h">👑 ราชวงศ์แชมป์</h3><div class="hist-dyn">`;
+    h += `<h3 class="hist-h">${hd('dynasty')}</h3><div class="hist-dyn">`;
     titles.slice(0,5).forEach(t=>{
       h += `<div class="dyn-card">${tlogo(t.team,34)}<div><b>${esc(t.team)}</b><span>${t.count} สมัย ${"🏆".repeat(Math.min(t.count,5))}</span></div></div>`;
     });
     h += `</div>`;
   }
   if(hist.length){
-    h += `<h3 class="hist-h">🗓 ไทม์ไลน์แชมป์ทุกซีซั่น</h3><div class="hist-tl">`;
+    h += `<h3 class="hist-h">${hd('timeline')}</h3><div class="hist-tl">`;
     hist.forEach(e=>{
       const champ = e.winner ? `${tlogo(e.winner,22)}<b class="tl-champ">${esc(e.winner)}</b>` : '<span style="color:var(--dim)">— ยกเลิก —</span>';
       h += `<div class="tl-item"><div class="tl-dot"></div>
@@ -1044,17 +1062,17 @@ function renderHistory(){
     });
     h += `</div>`;
   }
-  h += `<h3 class="hist-h">🎵 เพลง & คอลแลบศิลปิน</h3><div class="hist-music">`;
+  h += `<h3 class="hist-h">${hd('music')}</h3><div class="hist-music">`;
   music.forEach(m=>{
     h += `<div class="mu-card"><div class="mu-ic">🎶</div><div><div class="mu-song">${esc(m.song)}</div>
       <div class="mu-artist">${esc(m.artist)}</div>
       <div class="mu-note">${esc(m.season)} · ${esc(m.note)}</div></div></div>`;
   });
   h += `</div>`;
-  h += `<h3 class="hist-h">🎬 โปรดักชัน & อีเวนต์</h3><div class="hist-prod">`;
+  h += `<h3 class="hist-h">${hd('production')}</h3><div class="hist-prod">`;
   ((historyData&&historyData.production)||[]).forEach(p=>{ h += `<div class="pr-card"><b>${esc(p.title)}</b><span>${esc(p.detail)}</span></div>`; });
   h += `</div>`;
-  h += `<h3 class="hist-h">🎮 ยุคของเมตา & ฮีโร่</h3><div class="hist-eras">`;
+  h += `<h3 class="hist-h">${hd('eras')}</h3><div class="hist-eras">`;
   eras.forEach(e=>{ h += `<div class="era-card"><b>${esc(e.t)}</b><span>${esc(e.d)}</span></div>`; });
   h += `</div>`;
   if((historyData&&historyData.metaNote)) h += `<div class="hist-note">${esc(historyData.metaNote)}</div>`;
@@ -1080,7 +1098,6 @@ function render(){
       const sel = cmpSel.has(key);
       return `<div class="card tier-${p.tier}${sel?" selected":""}" onclick="openPlayer('${esc(p.player)}','${esc(p.team)}')">
         <div class="ovr">${p.ovr}<small>OVR${pv?deltaHtml(p,pv,'ovr'):''}</small></div>
-        <button class="cmpbtn" onclick="event.stopPropagation();toggleCmp('${esc(p.player)}','${esc(p.team)}')">⚖ ${sel?"เลือกแล้ว":"เทียบ"}</button>
         <div class="head">
           ${avatarHtml(p.player,p.team,"")}
           <div class="txt">
@@ -1088,7 +1105,7 @@ function render(){
             <div class="sub">${tlogo(p.team,15)}${esc(p.team)}</div>
           </div>
         </div>
-        <div>${rankBadge(p)}</div>
+        <div class="rankrow">${rankBadge(p)}</div>
         <div class="stats">
           ${statCell(p,'avgmvp',(p.avgmvp||0).toFixed(1),'AVG MVP')}
           ${statCell(p,'kda',p.kda.toFixed(2),'AVG KDA')}
@@ -1101,7 +1118,10 @@ function render(){
           <div><b>${p.mvp}</b><span>MVP</span></div>
         </div>
         <div class="wr-bar" title="Win rate ${Math.round(p.wr)}%"><i style="width:${Math.min(p.wr,100)}%"></i></div>
-        <div style="font-size:11px;color:var(--dim);margin-top:5px">${p.wins}W ${p.games-p.wins}L · WR ${Math.round(p.wr)}% · ${p.games} เกม</div>
+        <div class="cardfoot">
+          <span class="wrtxt">${p.wins}W ${p.games-p.wins}L · WR ${Math.round(p.wr)}% · ${p.games} เกม</span>
+          <button class="cmpbtn" onclick="event.stopPropagation();toggleCmp('${esc(p.player)}','${esc(p.team)}')">⚖ ${sel?"เลือกแล้ว":"เทียบ"}</button>
+        </div>
       </div>`;
     }).join("")+'</div>';
   }else{
@@ -1241,6 +1261,16 @@ function apSaveHistory(){
   const g=id=>document.getElementById(id);
   const parse=(v,keys)=> (v||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{ const p=l.split('|').map(x=>x.trim()); const o={}; keys.forEach((k,i)=>o[k]=p[i]||''); return o; });
   if(!historyData) historyData = JSON.parse(JSON.stringify(HISTORY_DEFAULT));
+  const gv=(id,def)=>{ const el=g(id); return el ? el.value.trim() : def; };
+  historyData.tabName = gv('hTabName', HISTORY_DEFAULT.tabName) || HISTORY_DEFAULT.tabName;
+  historyData.title = gv('hTitle', HISTORY_DEFAULT.title) || HISTORY_DEFAULT.title;
+  historyData.heads = {
+    dynasty: gv('hHeadDynasty', HISTORY_DEFAULT.heads.dynasty) || HISTORY_DEFAULT.heads.dynasty,
+    timeline: gv('hHeadTimeline', HISTORY_DEFAULT.heads.timeline) || HISTORY_DEFAULT.heads.timeline,
+    music: gv('hHeadMusic', HISTORY_DEFAULT.heads.music) || HISTORY_DEFAULT.heads.music,
+    production: gv('hHeadProd', HISTORY_DEFAULT.heads.production) || HISTORY_DEFAULT.heads.production,
+    eras: gv('hHeadEras', HISTORY_DEFAULT.heads.eras) || HISTORY_DEFAULT.heads.eras
+  };
   historyData.intro = g('hIntro').value.trim();
   historyData.metaNote = g('hMeta').value.trim();
   historyData.music = parse(g('hMusic').value, ['song','artist','season','note']);
@@ -1375,6 +1405,20 @@ function openAdmin(){
     const ta='width:100%;min-height:74px;background:var(--bg2);border:1px solid var(--line);color:var(--txt);border-radius:6px;padding:8px;font-size:12.5px;font-family:inherit;line-height:1.5';
     html += `<div class="ap-sec"><h3>📜 หน้า History (แก้เนื้อหาได้เอง)</h3>
       <div class="hint">ไทม์ไลน์แชมป์ดึงจากทำเนียบอัตโนมัติ · ส่วนล่างนี้แก้ได้ — รายการหลายบรรทัด: 1 รายการต่อบรรทัด คั่นด้วย " | " เสร็จแล้วกด 💾</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label style="${lb}">ชื่อแท็บ (ปุ่มบนเมนู)</label>
+          <input id="hTabName" class="bkin" style="width:100%" value="${esc((H.tabName!=null?H.tabName:HISTORY_DEFAULT.tabName))}"></div>
+        <div><label style="${lb}">หัวเรื่องใหญ่ (บนสุดของหน้า)</label>
+          <input id="hTitle" class="bkin" style="width:100%" value="${esc((H.title!=null?H.title:HISTORY_DEFAULT.title))}"></div>
+      </div>
+      <label style="${lb}">ชื่อหัวข้อย่อยในหน้า (แก้ข้อความ/อีโมจิได้)</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <input id="hHeadDynasty" class="bkin" style="width:100%" value="${esc(((H.heads||{}).dynasty)||HISTORY_DEFAULT.heads.dynasty)}">
+        <input id="hHeadTimeline" class="bkin" style="width:100%" value="${esc(((H.heads||{}).timeline)||HISTORY_DEFAULT.heads.timeline)}">
+        <input id="hHeadMusic" class="bkin" style="width:100%" value="${esc(((H.heads||{}).music)||HISTORY_DEFAULT.heads.music)}">
+        <input id="hHeadProd" class="bkin" style="width:100%" value="${esc(((H.heads||{}).production)||HISTORY_DEFAULT.heads.production)}">
+        <input id="hHeadEras" class="bkin" style="width:100%" value="${esc(((H.heads||{}).eras)||HISTORY_DEFAULT.heads.eras)}">
+      </div>
       <label style="${lb}">คำโปรย (intro)</label>
       <input id="hIntro" class="bkin" style="width:100%" value="${esc(H.intro||'')}">
       <label style="${lb}">🎵 เพลง/คอลแลบ &nbsp;<span style="color:var(--dim)">เพลง | ศิลปิน | ซีซั่น | โน้ต</span></label>
