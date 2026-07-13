@@ -376,6 +376,30 @@ let selSeason = null;     // ซีซั่นที่เลือกในแ
 function badgeColor(s){ const pal=["#8a5a00","#7a1f2b","#1f4d7a","#3d6b21","#5b2d7a","#7a4a1f","#2b6b62","#6b214d"]; let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0; return pal[h%pal.length]; }
 function badgeText(s){ const w=s.trim().split(/\s+/); return (w.map((x,i)=>/^\d+$/.test(x)?x.slice(-2):(i===0?x.slice(0,3):x.slice(0,1)).toUpperCase()).join(""))||s; }
 let adminHash = null;     // hash รหัสแอดมินที่ฝังไว้
+const HISTORY_DEFAULT = {
+  intro: "เส้นทาง 17 ซีซั่นของลีกอาชีพ RoV ที่ยิ่งใหญ่ที่สุดในไทย ตั้งแต่ปี 2017 ถึงปัจจุบัน",
+  music: [
+    {song:"ไม่จบง่าย ๆ", artist:"วง Zeal", season:"RPL 2020 Winter", note:"เพลงร็อกประกอบการแข่งขัน"},
+    {song:"Ride On (เวอร์ชันไทย)", artist:"ALLY × AR3NA (411MUSIC)", season:"ฉลอง 5 ปี RoV · 2021 Winter", note:"4 สาวแต่งลุคจากฮีโร่ Diao Chan, Sinestrea, Yena, Liliana"},
+    {song:"Light Awaken", artist:"Flower.far × AUTTA", season:"RPL 2025 Summer", note:"Official MV"},
+    {song:"รุ่งอรุณแห่งความฝัน (Dream Riser)", artist:"GALCHANIE", season:"RPL 2026 Summer", note:"MV เปิดตัวทัวร์นาเมนต์ ธีม Dream Riser"},
+    {song:"Born For This Moment", artist:"GALCHANIE × CDGUNTEE", season:"RPL 2026 Summer", note:"เพลงในแคมเปญเดียวกัน"}
+  ],
+  production: [
+    {title:"🏟 สถานที่ (2026)", detail:"รอบกลุ่ม Garena Esports Studio · ไฟนอล BITEC Live Hall"},
+    {title:"👑 Miss RoV", detail:"เวทีแข่งขันหญิงล้วนครั้งแรก เปิดตัว 2026 Summer"},
+    {title:"📈 ผู้ชม", detail:"ทำสถิติผู้ชมสูงต่อเนื่อง (2025 Summer นิวไฮ)"},
+    {title:"💰 เงินรางวัล", detail:"RPL 2026 Summer รวมสูงถึง ~10 ล้านบาท"}
+  ],
+  eras: [
+    {t:"ยุคก่อตั้ง (2017–2019)", d:"Season 1–4 วางรากฐานลีกอาชีพ RoV ไทย · Buriram United คว้าแชมป์ Season 4"},
+    {t:"ยุค Summer/Winter (2020–)", d:"เปลี่ยนเป็นปีละ 2 สปลิต ยกระดับโปรดักชันและเงินรางวัล"},
+    {t:"ยุคราชวงศ์ (2021–2023)", d:"Talon และ Bacon Time สลับกันครองบัลลังก์ · Talon แชมป์โลก AWC 2021"},
+    {t:"ยุคใหม่ (2024–2026)", d:"eArena ดาวรุ่งคว้าแชมป์ซ้ำ · Full Sense แชมป์ AIC · Buriram คืนบัลลังก์ 2026"}
+  ],
+  metaNote: "ฮีโร่ปรากฏการณ์ที่เป็นตัวชี้ชะตาหลายเมตา เช่น Murad, Ryoma, Preyta · ข้อมูลเมตารายซีซั่นและรายชื่อ/การย้ายทีมกำลังทยอยรวบรวมเพิ่ม"
+};
+let historyData = JSON.parse(JSON.stringify(HISTORY_DEFAULT));
 const photoMap = {};      // normName -> dataURL
 const cmpSel = new Map();
 
@@ -982,23 +1006,12 @@ function renderHistory(){
     Object.values(leaderboards).find(v=>v.history && v.history.some(h=>/RPL|Pro League/i.test(h.event)));
   const hist = (rpl && rpl.history) ? rpl.history : [];
   const titles = (rpl && rpl.titles) ? rpl.titles : [];
-  const music = [
-    {season:"RPL 2020 Winter", artist:"วง Zeal", song:"ไม่จบง่าย ๆ", note:"เพลงร็อกประกอบการแข่งขัน"},
-    {season:"ฉลอง 5 ปี RoV · 2021 Winter", artist:"ALLY × AR3NA (411MUSIC)", song:"Ride On (เวอร์ชันไทย)", note:"4 สาวแต่งลุคจากฮีโร่ Diao Chan, Sinestrea, Yena, Liliana"},
-    {season:"RPL 2025 Summer", artist:"Flower.far × AUTTA", song:"Light Awaken", note:"Official MV"},
-    {season:"RPL 2026 Summer", artist:"GALCHANIE", song:"รุ่งอรุณแห่งความฝัน (Dream Riser)", note:"MV เปิดตัวทัวร์นาเมนต์ ธีม Dream Riser"},
-    {season:"RPL 2026 Summer", artist:"GALCHANIE × CDGUNTEE", song:"Born For This Moment", note:"เพลงในแคมเปญเดียวกัน"}
-  ];
-  const eras = [
-    {t:"ยุคก่อตั้ง (2017–2019)", d:"Season 1–4 วางรากฐานลีกอาชีพ RoV ไทย · Buriram United คว้าแชมป์ Season 4"},
-    {t:"ยุค Summer/Winter (2020–)", d:"เปลี่ยนเป็นปีละ 2 สปลิต ยกระดับโปรดักชันและเงินรางวัล"},
-    {t:"ยุคราชวงศ์ (2021–2023)", d:"Talon และ Bacon Time สลับกันครองบัลลังก์ · Talon แชมป์โลก AWC 2021"},
-    {t:"ยุคใหม่ (2024–2026)", d:"eArena ดาวรุ่งคว้าแชมป์ซ้ำ · Full Sense แชมป์ AIC · Buriram คืนบัลลังก์ 2026"}
-  ];
+  const music = (historyData&&historyData.music)||[];
+  const eras = (historyData&&historyData.eras)||[];
   let h = `<div class="hist">
     <div class="hist-hero"><div class="hist-hero-badge">10 YEARS</div>
       <h2>📜 ประวัติศาสตร์ RoV Pro League</h2>
-      <p>เส้นทาง 17 ซีซั่นของลีกอาชีพ RoV ที่ยิ่งใหญ่ที่สุดในไทย ตั้งแต่ปี 2017 ถึงปัจจุบัน</p>
+      <p>${esc((historyData&&historyData.intro)||"")}</p>
     </div>`;
   if(titles.length){
     h += `<h3 class="hist-h">👑 ราชวงศ์แชมป์</h3><div class="hist-dyn">`;
@@ -1026,17 +1039,13 @@ function renderHistory(){
       <div class="mu-note">${esc(m.season)} · ${esc(m.note)}</div></div></div>`;
   });
   h += `</div>`;
-  h += `<h3 class="hist-h">🎬 โปรดักชัน & อีเวนต์</h3>
-    <div class="hist-prod">
-      <div class="pr-card"><b>🏟 สถานที่ (2026)</b><span>รอบกลุ่ม Garena Esports Studio · ไฟนอล BITEC Live Hall</span></div>
-      <div class="pr-card"><b>👑 Miss RoV</b><span>เวทีแข่งขันหญิงล้วนครั้งแรก เปิดตัว 2026 Summer</span></div>
-      <div class="pr-card"><b>📈 ผู้ชม</b><span>ทำสถิติผู้ชมสูงต่อเนื่อง (2025 Summer นิวไฮ)</span></div>
-      <div class="pr-card"><b>💰 เงินรางวัล</b><span>RPL 2026 Summer รวมสูงถึง ~10 ล้านบาท</span></div>
-    </div>`;
+  h += `<h3 class="hist-h">🎬 โปรดักชัน & อีเวนต์</h3><div class="hist-prod">`;
+  ((historyData&&historyData.production)||[]).forEach(p=>{ h += `<div class="pr-card"><b>${esc(p.title)}</b><span>${esc(p.detail)}</span></div>`; });
+  h += `</div>`;
   h += `<h3 class="hist-h">🎮 ยุคของเมตา & ฮีโร่</h3><div class="hist-eras">`;
   eras.forEach(e=>{ h += `<div class="era-card"><b>${esc(e.t)}</b><span>${esc(e.d)}</span></div>`; });
   h += `</div>`;
-  h += `<div class="hist-note">ฮีโร่ปรากฏการณ์ที่เป็นตัวชี้ชะตาหลายเมตา เช่น <b>Murad</b>, <b>Ryoma</b>, <b>Preyta</b> · ข้อมูลเมตารายซีซั่นและรายชื่อ/การย้ายทีมกำลังทยอยรวบรวมเพิ่ม</div>`;
+  if((historyData&&historyData.metaNote)) h += `<div class="hist-note">${esc(historyData.metaNote)}</div>`;
   h += `</div>`;
   c.innerHTML = h;
 }
@@ -1216,6 +1225,18 @@ function apSaveAllTimeNames(){
   buildUI(); openAdmin();
   alert("บันทึกชื่อแท็บ ALL TIME แล้ว ✅ อย่าลืมกด 📤 เผยแพร่");
 }
+function apSaveHistory(){
+  const g=id=>document.getElementById(id);
+  const parse=(v,keys)=> (v||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{ const p=l.split('|').map(x=>x.trim()); const o={}; keys.forEach((k,i)=>o[k]=p[i]||''); return o; });
+  if(!historyData) historyData = JSON.parse(JSON.stringify(HISTORY_DEFAULT));
+  historyData.intro = g('hIntro').value.trim();
+  historyData.metaNote = g('hMeta').value.trim();
+  historyData.music = parse(g('hMusic').value, ['song','artist','season','note']);
+  historyData.production = parse(g('hProd').value, ['title','detail']);
+  historyData.eras = parse(g('hEras').value, ['t','d']);
+  buildUI(); openAdmin();
+  alert("บันทึกหน้า History แล้ว ✅ อย่าลืมกด 📤 เผยแพร่");
+}
 function apMissingPhotos(){
   const seen = new Set(), miss = [];
   allRows().forEach(r=>{
@@ -1334,6 +1355,27 @@ function openAdmin(){
     html += `<div style="margin-top:10px"><button class="btn" style="padding:7px 14px;font-size:13px" onclick="apSaveBracket()">💾 บันทึกผล Bracket</button></div></div>`;
   }
 
+  // 7) หน้า History (แก้เนื้อหา)
+  {
+    const H = historyData || HISTORY_DEFAULT;
+    const j=(arr,keys)=> (arr||[]).map(o=>keys.map(k=>o[k]||'').join(' | ')).join('\n');
+    const lb='display:block;font-size:12px;color:var(--dim);margin:10px 0 4px';
+    const ta='width:100%;min-height:74px;background:var(--bg2);border:1px solid var(--line);color:var(--txt);border-radius:6px;padding:8px;font-size:12.5px;font-family:inherit;line-height:1.5';
+    html += `<div class="ap-sec"><h3>📜 หน้า History (แก้เนื้อหาได้เอง)</h3>
+      <div class="hint">ไทม์ไลน์แชมป์ดึงจากทำเนียบอัตโนมัติ · ส่วนล่างนี้แก้ได้ — รายการหลายบรรทัด: 1 รายการต่อบรรทัด คั่นด้วย " | " เสร็จแล้วกด 💾</div>
+      <label style="${lb}">คำโปรย (intro)</label>
+      <input id="hIntro" class="bkin" style="width:100%" value="${esc(H.intro||'')}">
+      <label style="${lb}">🎵 เพลง/คอลแลบ &nbsp;<span style="color:var(--dim)">เพลง | ศิลปิน | ซีซั่น | โน้ต</span></label>
+      <textarea id="hMusic" style="${ta}">${esc(j(H.music,['song','artist','season','note']))}</textarea>
+      <label style="${lb}">🎬 โปรดักชัน &nbsp;<span style="color:var(--dim)">หัวข้อ | รายละเอียด</span></label>
+      <textarea id="hProd" style="${ta}">${esc(j(H.production,['title','detail']))}</textarea>
+      <label style="${lb}">🎮 ยุคเมตา/ฮีโร่ &nbsp;<span style="color:var(--dim)">หัวข้อ | รายละเอียด</span></label>
+      <textarea id="hEras" style="${ta}">${esc(j(H.eras,['t','d']))}</textarea>
+      <label style="${lb}">หมายเหตุเมตา (บรรทัดล่างสุด)</label>
+      <input id="hMeta" class="bkin" style="width:100%" value="${esc(H.metaNote||'')}">
+      <div style="margin-top:12px"><button class="btn" style="padding:7px 14px;font-size:13px" onclick="apSaveHistory()">💾 บันทึกหน้า History</button></div>
+    </div>`;
+  }
   html += `<div class="ap-foot">
     <button class="btn danger" onclick="apLogout()">🚪 ออกจากระบบ</button>
     <button class="btn ghost" onclick="apClose()">← กลับหน้าเว็บ</button>
@@ -1424,42 +1466,40 @@ function sparkline(vals, labels){
 
 // ================= publish (ฝังข้อมูลลงไฟล์แล้วเซฟ) =================
 document.getElementById('btnPublish').onclick = publish;
-function publish(){
+async function publish(){
   if(!datasets.length){ alert("ยังไม่มีข้อมูล"); return; }
-  let pw = prompt("ตั้งรหัสแอดมินสำหรับไฟล์ฉบับเผยแพร่\n(ใช้ปลดล็อกแก้ไขจากลิงก์ '🔑 สำหรับแอดมิน' ท้ายหน้า)\nเว้นว่าง = ไม่เปิดให้แก้ไขจากไฟล์เผยแพร่เลย", "");
+  let pw = prompt("ใส่รหัสแอดมินเพื่อเผยแพร่ขึ้นเว็บ:", "");
   if(pw===null) return;
   pw = pw.trim();
-  // ล้าง DOM ที่ render แล้ว ให้ไฟล์สะอาด
-  const content = document.getElementById('content');
-  const nav = document.getElementById('seasonNav');
-  const modal = document.getElementById('modalBox');
-  const keep = [content.innerHTML, nav.innerHTML, modal.innerHTML];
+  if(!pw){ alert("ต้องใส่รหัส"); return; }
+  const __uniq={}, __photos={}, __alias={};
+  Object.keys(photoMap).forEach(k=>{ const u=photoMap[k]; if(__uniq[u]===undefined){ __uniq[u]=k; __photos[k]=u; } else __alias[k]=__uniq[u]; });
+  const payloadObj = {
+    published:true, adminHash: adminHash || hashPw(pw),
+    datasets, photos:__photos, photoAlias:__alias, seasonLogos, roleIcons, leaderboards, teamLogos, teamNames, curTab, view,
+    history: historyData
+  };
+  // 1) ลองเผยแพร่สดผ่าน /api/publish (เขียนกลับ GitHub → เว็บอัปเดตเอง ~30 วิ)
+  try{
+    const res = await fetch('/api/publish', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password: pw, data: payloadObj}) });
+    if(res.ok){ alert("เผยแพร่ขึ้นเว็บแล้ว ✅\nเว็บจะอัปเดตเองใน ~30 วินาที (ลิงก์เดิม ทุกคนเห็น)\nรีเฟรชหน้าเว็บดูได้"); return; }
+    if(res.status!==404){ const t=await res.text(); if(!confirm("เผยแพร่สดไม่สำเร็จ ("+res.status+"): "+t+"\n\nดาวน์โหลดไฟล์สำรองแทนไหม?")) return; }
+  }catch(e){ /* ไม่มี api / ยังไม่ได้ตั้งค่า → ดาวน์โหลดไฟล์สำรอง */ }
+  // 2) สำรอง: ดาวน์โหลดไฟล์ (โหมดเดิม)
+  const content=document.getElementById('content'), nav=document.getElementById('seasonNav'), modal=document.getElementById('modalBox');
+  const keep=[content.innerHTML, nav.innerHTML, modal.innerHTML];
   content.innerHTML=""; nav.innerHTML=""; modal.innerHTML="";
   document.getElementById('cmpbar').classList.remove('show');
-  // dedupe รูป: url ซ้ำเก็บครั้งเดียว ที่เหลือเป็น alias
-  const __uniq={}, __photos={}, __alias={};
-  Object.keys(photoMap).forEach(k=>{
-    const u = photoMap[k];
-    if(__uniq[u]===undefined){ __uniq[u]=k; __photos[k]=u; }
-    else __alias[k]=__uniq[u];
-  });
-  const payload = JSON.stringify({
-    published:true,
-    adminHash: pw ? hashPw(pw) : null,
-    datasets, photos:__photos, photoAlias:__alias, seasonLogos, roleIcons, leaderboards, teamLogos, teamNames, curTab, view
-  }).replace(/<\//g,"<\\/");
-  document.getElementById('saved-data').textContent = payload;
+  document.getElementById('saved-data').textContent = JSON.stringify(payloadObj).replace(/<\//g,"<\\/");
   const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
   document.getElementById('saved-data').textContent = "null";
   content.innerHTML=keep[0]; nav.innerHTML=keep[1]; modal.innerHTML=keep[2];
   buildUI();
-  const blob = new Blob([html], {type:"text/html;charset=utf-8"});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = "rov-stats-published.html";
+  const blob=new Blob([html],{type:"text/html;charset=utf-8"});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download="rov-stats-published.html";
   document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
-  alert("เซฟไฟล์ rov-stats-published.html แล้ว ✅\n\n• แจกไฟล์นี้ให้คนอื่นเปิดดูได้เลย (ดูอย่างเดียว ข้อมูล+รูปฝังในไฟล์)\n"+(pw?"• คุณแก้ไขได้โดยกด '🔑 สำหรับแอดมิน' ท้ายหน้า แล้วใส่รหัสที่ตั้งไว้":"• ไฟล์นี้แก้ไขไม่ได้ อัปเดตจากไฟล์ต้นฉบับของคุณแล้วเผยแพร่ใหม่"));
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  alert("เซฟไฟล์ rov-stats-published.html แล้ว ✅ (โหมดสำรอง)\nส่งไฟล์นี้ให้ผมอัปขึ้นเว็บได้ หรือรอตั้งค่า publish สดให้เสร็จ");
 }
 
 // ================= admin unlock =================
@@ -1486,6 +1526,7 @@ document.getElementById('adminLink').onclick = ()=>{
     if(saved && saved.leaderboards) leaderboards = saved.leaderboards;
     if(saved && saved.teamLogos) teamLogos = saved.teamLogos;
     if(saved && saved.teamNames) teamNames = saved.teamNames;
+    if(saved && saved.history) historyData = Object.assign(JSON.parse(JSON.stringify(HISTORY_DEFAULT)), saved.history);
     if(saved && saved.datasets && saved.datasets.length){
       datasets = saved.datasets;
       curTab = saved.curTab || null;
