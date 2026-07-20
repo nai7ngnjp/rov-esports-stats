@@ -1540,7 +1540,9 @@ function openPlayer(name, team){
     const [p] = aggregate(wr);
     return {week:d.label, ...p};
   }).filter(Boolean);
-  const histRows = wks.length ? wks.flatMap(d=>d.rows) : rowsOf(curTab);
+  // ถ้ากำลังดูแท็บสแตทรวมจากชีต (ไม่ใช่วีค) ให้ใช้ข้อมูลแท็บนั้นเป็นหลัก — ห้ามไปหยิบวีคมาแทน
+  const curDs = datasets.find(d=>d.id===curTab);
+  const histRows = (curDs && !curDs.isWeek) ? curDs.rows : (wks.length ? wks.flatMap(d=>d.rows) : rowsOf(curTab));
   const mine = histRows.filter(r=>r.player===name && r.team===team);
   if(!mine.length) return;
   const all = aggregate(mine)[0];
