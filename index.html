@@ -90,6 +90,7 @@ main{max-width:1200px;margin:0 auto;padding:20px}
 .card .stats div{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.18));border-radius:8px;padding:5px 2px;text-align:center;border:1px solid rgba(255,255,255,.05)}
 .card .stats div.s-top{border-color:rgba(248,216,120,.55);box-shadow:inset 0 0 12px rgba(248,216,120,.12),0 0 8px rgba(248,216,120,.18)}
 .card .stats div.s-role{border-color:rgba(157,134,224,.55);box-shadow:inset 0 0 12px rgba(157,134,224,.12),0 0 8px rgba(157,134,224,.18)}
+.card .stats div.s-2nd{border-color:rgba(210,220,228,.6);box-shadow:inset 0 0 12px rgba(210,220,228,.12),0 0 8px rgba(210,220,228,.18)}
 .card .stats b{display:block;font-size:13px;font-variant-numeric:tabular-nums}
 .card .stats span{color:var(--dim);font-size:9px;letter-spacing:.3px;text-transform:uppercase}
 .wr-bar{height:6px;border-radius:4px;background:rgba(0,0,0,.35);margin-top:12px;overflow:hidden}
@@ -821,14 +822,16 @@ function computeBadges(list){
     const top = sorted[0];
     top.badges.push('<span class="rankbadge top">🏆 ทัวร์ · '+label+'</span>');
     top.top[k] = 'tour';
+    const second = sorted[1];
+    if(second){ second.badges.push('<span class="rankbadge silver">🥈 ทัวร์ อันดับ 2 · '+label+'</span>'); second.top[k]='silver'; }
     const seen = {};
-    sorted.forEach(pp=>{ if(!seen[pp.role]){ seen[pp.role]=true; if(pp!==top){ pp.badges.push('<span class="rankbadge role">🥇 '+esc(pp.role)+' · '+label+'</span>'); pp.top[k]='role'; } } });
+    sorted.forEach(pp=>{ if(!seen[pp.role]){ seen[pp.role]=true; if(pp!==top){ pp.badges.push('<span class="rankbadge role">🥇 '+esc(pp.role)+' · '+label+'</span>'); if(!pp.top[k]) pp.top[k]='role'; } } });
   });
 }
 function statCell(p,k,val,label){
   const t = p.top && p.top[k];
-  const cls = t==='tour' ? ' s-top' : t==='role' ? ' s-role' : '';
-  const ti = t==='tour' ? ' title="อันดับ 1 ของทัวร์ · '+label+'"' : t==='role' ? ' title="อันดับ 1 ของ '+esc(p.role)+' · '+label+'"' : '';
+  const cls = t==='tour' ? ' s-top' : t==='silver' ? ' s-2nd' : t==='role' ? ' s-role' : '';
+  const ti = t==='tour' ? ' title="อันดับ 1 ของทัวร์ · '+label+'"' : t==='silver' ? ' title="อันดับ 2 ของทัวร์ · '+label+'"' : t==='role' ? ' title="อันดับ 1 ของ '+esc(p.role)+' · '+label+'"' : '';
   return '<div class="'+cls+'"'+ti+'><b>'+val+'</b><span>'+label+'</span></div>';
 }
 function currentList(){
@@ -1299,6 +1302,7 @@ function achievementsHtml(name, team){
     const sorted = [...el].sort((a,b)=>sgn*((a[k]??0)-(b[k]??0)));
     if(sorted[0]===me) out.push('<span class="rankbadge top">🏆 อันดับ 1 ของทัวร์ · '+label+'</span>');
     else{
+      if(sorted[1]===me) out.push('<span class="rankbadge silver">🥈 อันดับ 2 ของทัวร์ · '+label+'</span>');
       const rl = sorted.filter(p=>p.role===me.role);
       if(rl[0]===me) out.push('<span class="rankbadge role">🥇 อันดับ 1 ของ '+esc(me.role)+' · '+label+'</span>');
     }
