@@ -592,8 +592,9 @@ function finishLoad(errs){
   datasets.sort((a,b)=>a.season.localeCompare(b.season)||a.order-b.order);
   if(!curTab || !tabExists(curTab)){
     const s = seasons()[0];
+    const tot = inSeason(s).find(d=>!d.isWeek);   // มีสแตทรวมจากชีต → ใช้ก่อน
     const w = weekOnly(s);
-    curTab = w.length ? w[w.length-1].id : inSeason(s)[0].id;
+    curTab = tot ? tot.id : (w.length ? w[w.length-1].id : inSeason(s)[0].id);
   }
   buildUI();
 }
@@ -729,12 +730,14 @@ function kdaOf(k,a,d){ return (k+a)/Math.max(d,1); }
 function aggregate(list){
   const byP = {};
   list.forEach(r=>{
-    const key = r.player+"|"+r.team;
-    if(!byP[key]) byP[key] = {...r, dmgW:r.dmg*r.games, takenW:r.taken*r.games, goldW:r.gold*r.games, partW:r.part*r.games,
+    // จับคู่ชื่อแบบไม่สนตัวพิมพ์ กันชื่อเดียวกันคนละเคส (เช่น JellyJane / JELLYJANE) ถูกนับเป็น 2 คน
+    const key = String(r.player).trim().toLowerCase()+"|"+String(r.team).trim().toUpperCase();
+    if(!byP[key]) byP[key] = {...r, _nameG:r.games, dmgW:r.dmg*r.games, takenW:r.taken*r.games, goldW:r.gold*r.games, partW:r.part*r.games,
       avgmvpW:(r.avgmvp||0)*r.games, dpmW:(r.dpm||0)*r.games, gpmW:(r.gpm||0)*r.games,
       kdasW:(r.kdas!=null?r.kdas:0)*r.games, kdasG:(r.kdas!=null?r.games:0), heroes:new Set([r.hero])};
     else{
       const p = byP[key];
+      if(r.games>p._nameG){ p.player=r.player; p._nameG=r.games; } // ใช้ชื่อสะกดจากไฟล์ที่มีเกมเยอะสุด
       p.games+=r.games; p.wins+=r.wins; p.k+=r.k; p.d+=r.d; p.a+=r.a; p.mvp+=r.mvp;
       p.dmgW+=r.dmg*r.games; p.takenW+=r.taken*r.games; p.goldW+=r.gold*r.games; p.partW+=r.part*r.games;
       p.avgmvpW+=(r.avgmvp||0)*r.games; p.dpmW+=(r.dpm||0)*r.games; p.gpmW+=(r.gpm||0)*r.games;
@@ -1534,8 +1537,9 @@ function openAdmin(){
 function openPlayer(name, team){
   const season = curSeason();
   const wks = weekOnly(season);
+  const samePT = r => String(r.player).trim().toLowerCase()===String(name).trim().toLowerCase() && String(r.team).trim().toUpperCase()===String(team).trim().toUpperCase();
   const perWeek = wks.map(d=>{
-    const wr = d.rows.filter(r=>r.player===name && r.team===team);
+    const wr = d.rows.filter(samePT);
     if(!wr.length) return null;
     const [p] = aggregate(wr);
     return {week:d.label, ...p};
@@ -1543,7 +1547,7 @@ function openPlayer(name, team){
   // ถ้ากำลังดูแท็บสแตทรวมจากชีต (ไม่ใช่วีค) ให้ใช้ข้อมูลแท็บนั้นเป็นหลัก — ห้ามไปหยิบวีคมาแทน
   const curDs = datasets.find(d=>d.id===curTab);
   const histRows = (curDs && !curDs.isWeek) ? curDs.rows : (wks.length ? wks.flatMap(d=>d.rows) : rowsOf(curTab));
-  const mine = histRows.filter(r=>r.player===name && r.team===team);
+  const mine = histRows.filter(samePT);
   if(!mine.length) return;
   const all = aggregate(mine)[0];
   const kdas = perWeek.map(p=>p.kda);
