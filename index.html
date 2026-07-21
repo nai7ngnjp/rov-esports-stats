@@ -816,6 +816,26 @@ function withRating(list){
     const conf = (p.games/(p.games+K))/confMax;
     s = 0.5 + (s-0.5)*conf;
     p.conf = conf;
+    p.base = s;
+  });
+  // ---- โบนัส "อันดับ 1 / อันดับ 2 ของทัวร์" รายสแตท (นับเฉพาะคนที่เกมถึงเกณฑ์) ----
+  const el = eligible(list);
+  list.forEach(p=>{ p.tourFirsts=0; p.tourSeconds=0; });
+  if(el.length>1){
+    KEYSTATS.forEach(([k,,dir])=>{
+      const sgn = dir==="lo" ? 1 : -1;
+      const sorted = [...el].sort((a,b)=> sgn*((a[k]??0)-(b[k]??0)));
+      if(sorted[0]) sorted[0].tourFirsts++;
+      if(sorted[1]) sorted[1].tourSeconds++;
+    });
+  }
+  const N = KEYSTATS.length;              // 8 สแตทหลัก
+  list.forEach(p=>{
+    // ที่ 1 = 1.0 แต้ม, ที่ 2 = 0.5 แต้ม → กวาดที่ 1 ครบทุกสแตทได้โบนัสเต็ม
+    const pts = (p.tourFirsts||0) + (p.tourSeconds||0)*0.5;
+    p.crownBonus = Math.min(1, pts/N);
+    // บวกโบนัสทับคะแนนเดิม (ไม่บีบสเกล) — กวาดที่ 1 ทุกสแตท = +10 OVR เต็ม
+    const s = Math.min(1, p.base + p.crownBonus*0.26);
     p.ovr = Math.round(88 + s*39);
     p.tier = p.ovr>=118?'s':p.ovr>=108?'a':p.ovr>=98?'b':'c';
   });
