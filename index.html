@@ -1075,7 +1075,7 @@ function renderHome(){
       return `<div class="fmvpcard" onclick="openPlayer('${esc(p.player)}','${esc(p.team)}')">
         <div class="fm-tag">${esc(x.tag)}</div>
         <div class="fm-top">
-          <div class="fm-ph">${avatarHtml(p.player,p.team,'')}</div>
+          <div class="fm-ph">${avatarHtml(p.player,p.team,'',x.season)}</div>
           <div class="fm-id">
             <div class="fm-title">${esc(x.title||'FMVP')}</div>
             <b>${esc(p.player)}</b>
@@ -1242,10 +1242,19 @@ function photoUrl(player, team, seasonOverride){
     if(s[b]) return s[b];
   }
   // 2) ชุดกลาง (ใช้ได้ทุกซีซันที่ยังไม่ระบุชุด)
-  return photoMap[a] || photoMap[b] || null;
+  if(photoMap[a]) return photoMap[a];
+  if(photoMap[b]) return photoMap[b];
+  // 3) ซีซันนี้ยังไม่ผูกชุดรูป → ยืมจากชุดอื่นไปก่อน ดีกว่าไม่มีรูป
+  if(!setName){
+    for(const s of Object.values(photoSets)){
+      if(s[a]) return s[a];
+      if(s[b]) return s[b];
+    }
+  }
+  return null;
 }
-function avatarHtml(player, team, cls){
-  const u = photoUrl(player, team);
+function avatarHtml(player, team, cls, season){
+  const u = photoUrl(player, team, season);
   const initials = esc(player.replace(/[^A-Za-z0-9ก-๙]/g,"").slice(0,2).toUpperCase() || "?");
   if(u) return `<img class="avatar ${cls}" src="${u}" alt="" loading="lazy" decoding="async">`;
   const cands = [`photos/${team} ${player}.png`,`photos/${team} ${player}.jpg`,`photos/${player}.png`,`photos/${player}.jpg`,`photos/${player}.webp`]
