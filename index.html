@@ -96,6 +96,59 @@ main{max-width:1200px;margin:0 auto;padding:20px}
 .wr-bar{height:6px;border-radius:4px;background:rgba(0,0,0,.35);margin-top:12px;overflow:hidden}
 .wr-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),#57e0c4);box-shadow:0 0 10px rgba(47,194,165,.5)}
 
+/* ===== Homepage ===== */
+.sbadge.home-badge{width:auto;padding:0 18px;font-size:13.5px;font-weight:800;background:linear-gradient(135deg,#2c4250,#1b2a34);border:1px solid var(--line);color:var(--txt)}
+.sbadge.home-badge.on{background:linear-gradient(135deg,var(--acc),#26a98f);color:#08120f;border-color:transparent}
+.hero{position:relative;text-align:center;padding:44px 24px 40px;border-radius:20px;margin-bottom:26px;overflow:hidden;
+  background:radial-gradient(900px 300px at 50% -10%,rgba(47,194,165,.22),transparent 65%),linear-gradient(158deg,#25384493,#16232c);
+  border:1px solid var(--line);box-shadow:var(--shl)}
+.hero::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,transparent,var(--acc),var(--acc2),transparent)}
+.hero-badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:2.5px;color:var(--acc2);border:1px solid var(--acc2);border-radius:20px;padding:4px 14px;margin-bottom:14px}
+.hero h1{font-size:34px;line-height:1.28;font-weight:900;letter-spacing:.5px;text-shadow:0 0 28px rgba(47,194,165,.3)}
+.hero h1 span{color:var(--acc)}
+.hero p{color:var(--dim);font-size:14px;margin-top:12px;line-height:1.7;max-width:600px;margin-left:auto;margin-right:auto}
+.home-h{font-size:17px;font-weight:800;margin:28px 0 13px;padding-left:12px;position:relative}
+.home-h::before{content:"";position:absolute;left:0;top:2px;bottom:2px;width:4px;border-radius:3px;background:linear-gradient(180deg,var(--acc),var(--acc2));box-shadow:0 0 10px rgba(47,194,165,.4)}
+.champgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:13px}
+.champcard{background:linear-gradient(158deg,#2e4030,#182530);border:1px solid rgba(245,185,66,.4);border-left:3px solid var(--acc2);border-radius:14px;padding:15px 17px;box-shadow:var(--sh)}
+.ch-tag{font-size:10.5px;letter-spacing:1.6px;color:var(--acc2);font-weight:800;margin-bottom:9px}
+.ch-team{display:flex;align-items:center;gap:9px;font-size:17px;font-weight:900;margin-bottom:5px}
+.ch-sub{font-size:12.5px;color:var(--txt)}
+.ch-extra{font-size:11.5px;color:var(--dim);margin-top:3px}
+.topgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:11px}
+.topcard{display:flex;align-items:center;gap:11px;background:linear-gradient(158deg,#2a3d48,#182530);border:1px solid var(--line);border-radius:13px;padding:11px 14px;cursor:pointer;transition:.18s;box-shadow:0 4px 14px rgba(0,0,0,.28)}
+.topcard:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 12px 28px rgba(0,0,0,.45)}
+.topcard .avatar{width:52px;height:52px}
+.tp-rank{font-size:15px;font-weight:900;color:var(--dim);min-width:26px}
+.tp-txt{min-width:0;flex:1}
+.tp-txt b{display:block;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tp-txt span{display:flex;align-items:center;font-size:11.5px;color:var(--dim)}
+.tp-ovr{font-size:26px;font-weight:900;line-height:1;text-align:center;flex:none}
+.tp-ovr small{display:block;font-size:8.5px;color:var(--dim);letter-spacing:1px}
+.tp-ovr.tier-s{color:#f8d878;text-shadow:0 0 14px rgba(248,216,120,.5)}
+.tp-ovr.tier-a{color:#c9b8ff}.tp-ovr.tier-b{color:#7fd4ff}.tp-ovr.tier-c{color:#9fb2bd}
+.leadgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:11px}
+.leadcard{background:linear-gradient(158deg,#2a3d48,#182530);border:1px solid var(--line);border-radius:13px;padding:13px 15px;cursor:pointer;transition:.18s}
+.leadcard:hover{transform:translateY(-3px);border-color:var(--acc)}
+.ld-ic{font-size:19px}
+.ld-lb{font-size:10.5px;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase;margin-top:3px}
+.ld-val{font-size:24px;font-weight:900;color:var(--acc);margin:2px 0 8px;font-variant-numeric:tabular-nums;text-shadow:0 0 14px rgba(47,194,165,.35)}
+.ld-who{display:flex;align-items:center;font-size:12.5px;font-weight:700}
+.ld-who .avatar{width:30px;height:30px}
+.ld-who small{display:block;font-size:10.5px;color:var(--dim);font-weight:400}
+.quickgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:11px}
+.quickbtn{background:linear-gradient(158deg,#2a3d48,#182530);border:1px solid var(--line);border-radius:13px;padding:16px 12px;cursor:pointer;color:var(--txt);display:flex;flex-direction:column;align-items:center;gap:9px;transition:.18s;min-height:96px;justify-content:center}
+.quickbtn:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 10px 24px rgba(0,0,0,.4)}
+.quickbtn img{max-height:34px;max-width:120px;object-fit:contain}
+.quickbtn span{font-size:24px}
+.quickbtn i{font-style:normal;font-size:11.5px;color:var(--dim);text-align:center;line-height:1.35}
+.quickbtn.qb-hist{border-color:rgba(245,185,66,.35)}
+.hlgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:11px}
+.hlcard{background:linear-gradient(158deg,#22333d,#16232c);border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:12px;padding:12px 15px;cursor:pointer;transition:.18s}
+.hlcard:hover{transform:translateY(-3px);border-color:var(--acc)}
+.hlcard b{display:block;font-size:13.5px;color:var(--acc);margin-bottom:3px}
+.hlcard span{font-size:12px;color:var(--dim);line-height:1.55}
+@media(max-width:640px){.hero h1{font-size:25px}.hero{padding:32px 16px 30px}}
 /* lightbox ดูรูปใหญ่ */
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;flex-direction:column;z-index:200;cursor:zoom-out;padding:30px;backdrop-filter:blur(3px)}
 #lightbox.show{display:flex}
@@ -640,7 +693,7 @@ function finishLoad(errs){
   }
   buildUI();
 }
-const tabExists = t => t==="__history__" ? true : t.startsWith("__all__›") ? seasons().includes(t.slice(8)) : (t.startsWith("__lb__›") ? !!leaderboards[t.slice(7)] : datasets.some(d=>d.id===t));
+const tabExists = t => (t==="__history__"||t==="__home__") ? true : t.startsWith("__all__›") ? seasons().includes(t.slice(8)) : (t.startsWith("__lb__›") ? !!leaderboards[t.slice(7)] : datasets.some(d=>d.id===t));
 
 function weekFromFilename(fname){
   const m = fname.match(/\[?\s*w(?:eek)?\s*\.?\s*(\d+)\s*\]?/i);
@@ -889,6 +942,94 @@ function computeBadges(list){
     sorted.forEach(pp=>{ if(!seen[pp.role]){ seen[pp.role]=true; if(pp!==top){ pp.badges.push('<span class="rankbadge role">🥇 '+esc(pp.role)+' · '+label+'</span>'); if(!pp.top[k]) pp.top[k]='role'; } } });
   });
 }
+// ================= Homepage (แดชบอร์ด) =================
+function goTab(t){ curTab=t; buildUI(); window.scrollTo({top:0,behavior:'smooth'}); }
+function goSeason(sn){
+  selSeason=sn;
+  const w=weekOnly(sn), tot=inSeason(sn).find(d=>!d.isWeek);
+  curTab = tot ? tot.id : (w.length>1 ? "__all__›"+sn : (w.length ? w[w.length-1].id : (inSeason(sn)[0]||{}).id));
+  buildUI(); window.scrollTo({top:0,behavior:'smooth'});
+}
+function homeSeasonPick(){
+  // เลือกซีซันหลักไว้โชว์: อันที่มีข้อมูลเยอะสุด
+  const cand = seasons().filter(s=>datasets.some(d=>d.season===s));
+  if(!cand.length) return null;
+  return cand.map(s=>({s, n: inSeason(s).reduce((a,d)=>a+d.rows.length,0)})).sort((a,b)=>b.n-a.n)[0].s;
+}
+function homeList(sn){
+  const tot = inSeason(sn).find(d=>!d.isWeek);
+  const rows = tot ? tot.rows : weekOnly(sn).flatMap(d=>d.rows);
+  const l = withRating(aggregate(rows));
+  computeBadges(l);
+  return l;
+}
+function renderHome(){
+  const c = document.getElementById('content');
+  const sn = homeSeasonPick();
+  let h = `<div class="home">
+    <div class="hero">
+      <div class="hero-badge">RoV ESPORTS · ALL TIME STATS</div>
+      <h1>ศูนย์รวมสถิตินักแข่ง RoV<br><span>ทุกทัวร์นาเมนต์ ทุกซีซัน</span></h1>
+      <p>สถิติจากสนามแข่งจริง · เรตติ้ง OVR รายคน · ทำเนียบแชมป์ 17 ซีซัน · เจาะลึกเมตาฮีโร่รายซีซัน</p>
+    </div>`;
+
+  // --- แชมป์ล่าสุด ---
+  const champs = [];
+  const rpl = leaderboards['ALL TIME · RoV Pro League'];
+  if(rpl && rpl.history && rpl.history.length){
+    const e = rpl.history[0];
+    champs.push({tag:'RPL 2026 SUMMER', team:e.winner, sub:'FMVP: '+(e.fmvp||'-'), extra:'รองแชมป์ '+(e.runner||'-')});
+  }
+  champs.push({tag:'APL 2026 · แชมป์นานาชาติ', team:'DCG', sub:'Relove Deep Cross Gaming', extra:'แชมป์ APL สมัยแรก'});
+  champs.push({tag:'QUEENS SHOWDOWN', team:'EA', sub:'eArena · ตัวแทน Miss RoV ไทย', extra:'เวทีหญิงนานาชาติ'});
+  h += `<h3 class="home-h">🏆 แชมป์ล่าสุด</h3><div class="champgrid">` +
+    champs.map(x=>`<div class="champcard"><div class="ch-tag">${esc(x.tag)}</div>
+      <div class="ch-team">${tlogo(x.team,40)}<b>${esc(teamNames[x.team]||x.team)}</b></div>
+      <div class="ch-sub">${esc(x.sub)}</div><div class="ch-extra">${esc(x.extra)}</div></div>`).join('') + `</div>`;
+
+  if(sn){
+    const list = homeList(sn);
+    const top = [...list].sort((a,b)=>b.ovr-a.ovr).slice(0,5);
+    h += `<h3 class="home-h">⭐ Top 5 นักแข่ง · ${esc(sn)}</h3><div class="topgrid">` +
+      top.map((p,i)=>`<div class="topcard" onclick="openPlayer('${esc(p.player)}','${esc(p.team)}')">
+        <div class="tp-rank">#${i+1}</div>
+        ${avatarHtml(p.player,p.team,'')}
+        <div class="tp-txt"><b>${esc(p.player)}</b><span>${tlogo(p.team,13)}${esc(p.team)} · ${esc(p.role)}</span></div>
+        <div class="tp-ovr ${'tier-'+p.tier}">${p.ovr}<small>OVR</small></div></div>`).join('') + `</div>`;
+
+    // ผู้นำรายสแตท
+    const el = eligible(list);
+    const LEAD = [["avgmvp","AVG MVP","🏅"],["kda","AVG KDA","⚔️"],["dpm","DPM","💥"],["gpm","GPM","💰"],["part","%KP","🎯"],["mvp","MVP รวม","👑"]];
+    h += `<h3 class="home-h">📊 ผู้นำรายสแตท · ${esc(sn)}</h3><div class="leadgrid">` +
+      LEAD.map(([k,label,ic])=>{
+        const s=[...el].sort((a,b)=>(b[k]??0)-(a[k]??0))[0];
+        if(!s) return '';
+        const val = k==='part' ? Math.round(s[k])+'%' : (k==='mvp' ? s[k] : (k==='dpm'||k==='gpm' ? fmt(s[k]) : (s[k]??0).toFixed(2)));
+        return `<div class="leadcard" onclick="openPlayer('${esc(s.player)}','${esc(s.team)}')">
+          <div class="ld-ic">${ic}</div><div class="ld-lb">${esc(label)}</div>
+          <div class="ld-val">${val}</div>
+          <div class="ld-who">${avatarHtml(s.player,s.team,'sm')}<span>${esc(s.player)}<small>${esc(s.team)}</small></span></div></div>`;
+      }).join('') + `</div>`;
+  }
+
+  // --- ปุ่มลัด ---
+  const quick = [];
+  seasons().filter(s=>datasets.some(d=>d.season===s)).forEach(s=>quick.push({t:s,go:`goSeason('${esc(s)}')`,logo:seasonLogos[s]}));
+  Object.keys(leaderboards).filter(s=>leaderboards[s].history).forEach(s=>quick.push({t:(leaderboards[s].badge||badgeText(s)),go:`goTab('__lb__›${esc(s)}')`,logo:seasonLogos[s]}));
+  h += `<h3 class="home-h">🚀 เข้าดูเร็ว</h3><div class="quickgrid">` +
+    quick.map(q=>`<button class="quickbtn" onclick="${q.go}">${q.logo?`<img src="${q.logo}" alt="">`:`<span>${esc(q.t)}</span>`}<i>${esc(q.t)}</i></button>`).join('') +
+    `<button class="quickbtn qb-hist" onclick="goTab('__history__')"><span>📜</span><i>History 10 ปี</i></button></div>`;
+
+  // --- ไฮไลต์ประวัติศาสตร์ ---
+  const H = historyData||HISTORY_DEFAULT;
+  const eras = (H.eras||[]).slice(0,4);
+  if(eras.length){
+    h += `<h3 class="home-h">📜 ไฮไลต์ประวัติศาสตร์</h3><div class="hlgrid">` +
+      eras.map(e=>`<div class="hlcard" onclick="goTab('__history__')"><b>${esc(e.t)}</b><span>${esc(e.d)}</span></div>`).join('') + `</div>`;
+  }
+  h += `</div>`;
+  c.innerHTML = h;
+}
 // ================= Team Fun Fact =================
 function renderTeams(list){
   const by = {};
@@ -993,6 +1134,15 @@ function buildUI(){
   document.getElementById('adminLink').style.display = viewerMode ? "" : "none";
   const nav = document.getElementById('seasonNav');
   nav.innerHTML="";
+  // ปุ่มหน้าแรก
+  {
+    const hb=document.createElement('button');
+    hb.className="sbadge home-badge"+(curTab==="__home__"?" on":"");
+    hb.title="หน้าแรก"; hb.textContent="🏠 หน้าแรก";
+    hb.onclick=()=>{ curTab="__home__"; buildUI(); };
+    const wrap=document.createElement('div'); wrap.className="seasonbar"; wrap.style.margin="0 0 4px";
+    wrap.appendChild(hb); nav.appendChild(wrap);
+  }
   if(!selSeason || !seasons().includes(selSeason)) selSeason = curSeason() || seasons()[0];
   const allTimeKeys = Object.keys(leaderboards).filter(s=>leaderboards[s].history && !datasets.some(d=>d.season===s));
   const regularKeys = seasons().filter(s=>!allTimeKeys.includes(s));
@@ -1258,6 +1408,7 @@ function render(){
   const c0 = document.getElementById('content');
   renderCmpBar();
   const fbar = document.getElementById('filters');
+  if(curTab==="__home__"){ if(fbar) fbar.style.display="none"; renderHome(); return; }
   if(curTab==="__history__"){ if(fbar) fbar.style.display="none"; renderHistory(); return; }
   if(curTab && curTab.startsWith("__lb__›")){ if(fbar) fbar.style.display="none"; renderLeaderboard(curTab.slice(7)); return; }
   if(fbar) fbar.style.display="";
@@ -1817,7 +1968,7 @@ document.getElementById('adminLink').onclick = ()=>{
       datasets = saved.datasets;
       // ซ่อมข้อมูลเก่า: dataset "สแตทรวมซีซั่น" ต้องไม่นับเป็นวีค (กันเอาไปรวมกับวีคแยก)
       datasets.forEach(d=>{ if(/รวม|ซีซั่น|season|total/i.test(d.label) && !/week|วีค\s*\d|\bw\s*\d/i.test(d.label)){ d.isWeek=false; } });
-      curTab = saved.curTab || null;
+      curTab = "__home__";      // เปิดเว็บมาเจอหน้าแรกเสมอ
       view = saved.view || "cards";
       viewerMode = !!saved.published;
       adminHash = saved.adminHash || null;
