@@ -1685,7 +1685,7 @@ function tblSetSort(k){
   else { tblSort.k = k; tblSort.d = (k==='player'||k==='team'||k==='role') ? 1 : -1; }
   render();
 }
-let heroSortMode = 'games';
+let heroSortMode = 'pool';
 let heroQuery = '';
 function renderHeroView(){
   const c = document.getElementById('content');
@@ -1713,10 +1713,14 @@ function renderHeroView(){
   if(fr) items = items.filter(it=>it.role===fr);
   if(fq) items = items.filter(it=> it.player.toLowerCase().includes(fq) || it.team.toLowerCase().includes(fq)
         || it.arr.some(x=>x[0].toLowerCase().includes(fq)));
-  const sorters = {games:(a,b)=>b.games-a.games, wins:(a,b)=>b.wins-a.wins,
-                   pool:(a,b)=>b.pool-a.pool, name:(a,b)=>a.player.localeCompare(b.player)};
-  items.sort(sorters[heroSortMode]||sorters.games);
-  const sortBtns = [['games','หยิบมากสุด'],['wins','ชนะมากสุด'],['pool','ฮีโร่หลากสุด'],['name','ชื่อ A-Z']]
+  const sorters = {
+    pool:(a,b)=> b.pool-a.pool || b.games-a.games,
+    games:(a,b)=> b.games-a.games || b.wins-a.wins,
+    wins:(a,b)=> b.wins-a.wins || b.games-a.games,
+    loss:(a,b)=> (b.games-b.wins)-(a.games-a.wins) || b.games-a.games
+  };
+  items.sort(sorters[heroSortMode]||sorters.pool);
+  const sortBtns = [['pool','ฮีโร่พูลมากสุด'],['games','หยิบมากสุด'],['wins','ชนะมากสุด'],['loss','แพ้มากสุด']]
     .map(([k,l])=>`<button class="${k===heroSortMode?'on':''}" onclick="heroSetSort('${k}')">${l}</button>`).join('');
   c.innerHTML = `<div class="hmuted" style="margin-bottom:2px">🦸 ฮีโร่ที่แต่ละคนใช้ใน <b>${esc(season)}</b> · หยิบ / ชนะ / แพ้ (ข้อมูลจากชีต In-game Stats)</div>
     <div class="rstabs" style="margin:10px 0 12px">${sortBtns}</div>
@@ -1736,8 +1740,8 @@ function curTabForHero(season){
   const tot = datasets.find(d=>d.season===season && !d.isWeek);
   return tot ? tot.id : (datasets.find(d=>d.season===season)||{}).id;
 }
-function heroSetSort(k){ heroSortMode=k; renderHeroTab(); }
-function heroSetQuery(v){ heroQuery=v; const el=document.getElementById('heroQ'); const pos=el?el.selectionStart:0; renderHeroTab(); const n=document.getElementById('heroQ'); if(n){ n.focus(); n.setSelectionRange(pos,pos); } }
+function heroSetSort(k){ heroSortMode=k; render(); }
+function heroSetQuery(v){ heroQuery=v; render(); }
 function heroOpenAll(player,team){
   const arr = heroesOf(player,team);
   const box = document.getElementById('modalBox');
