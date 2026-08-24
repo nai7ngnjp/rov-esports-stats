@@ -2398,6 +2398,7 @@ function openAdmin(){
   html += `<div class="ap-foot">
     <button class="btn danger" onclick="apLogout()">🚪 ออกจากระบบ</button>
     <button class="btn ghost" onclick="apClose()">← กลับหน้าเว็บ</button>
+    <button class="btn ghost" onclick="apShrinkImages()">🗜️ ลดขนาดรูป</button>
     <button class="btn ap-pub" onclick="apClose();publish()">📤 เผยแพร่</button>
   </div>`;
   box.innerHTML = html;
@@ -2514,6 +2515,91 @@ function sparkline(vals, labels){
   </svg>`;
 }
 
+// ================= ตัวช่วย: แถบสถานะเผยแพร่ + ลดขนาดรูป =================
+function __pubStatus(msg){
+  let el = document.getElementById('pubStatus');
+  if(!msg){ if(el) el.remove(); return; }
+  if(!el){
+    el = document.createElement('div'); el.id = 'pubStatus';
+    el.style.cssText = "position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99999;background:rgba(17,17,17,.88);color:#fff;padding:10px 18px;border-radius:10px;font-weight:600;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.4)";
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+}
+// บีบอัดรูปที่เก็บเป็น data URL ให้เล็กลง (คืน null ถ้าไม่ได้เล็กลงจริง)
+function shrinkDataURL(url, maxDim, q){
+  return new Promise(res=>{
+    if(typeof url!=="string" || url.slice(0,11)!=="data:image/") return res(null);
+    const img = new Image();
+    img.onload = ()=>{
+      try{
+        let w=img.width, h=img.height; const m=Math.max(w,h);
+        if(m>maxDim){ const s=maxDim/m; w=Math.max(1,Math.round(w*s)); h=Math.max(1,Math.round(h*s)); }
+        const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+        cv.getContext('2d').drawImage(img,0,0,w,h);
+        let out=cv.toDataURL('image/webp',q);
+        if(out.indexOf('image/webp')<0){
+          const cv2=document.createElement('canvas'); cv2.width=w; cv2.height=h;
+          const cx=cv2.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,w,h); cx.drawImage(img,0,0,w,h);
+          out=cv2.toDataURL('image/jpeg',q);
+        }
+        res(out.length < url.length ? out : null);
+      }catch(e){ res(null); }
+    };
+    img.onerror = ()=>res(null);
+    img.src = url;
+  });
+}
+function __imgBuckets(){
+  const B = [];
+  if(typeof photoMap!=='undefined') B.push(['รูปนักแข่ง', photoMap]);
+  if(typeof teamLogos!=='undefined') B.push(['โลโก้ทีม', teamLogos]);
+  if(typeof seasonLogos!=='undefined') B.push(['โลโก้ซีซั่น', seasonLogos]);
+  if(typeof roleIcons!=='undefined') B.push(['ไอคอนตำแหน่ง', roleIcons]);
+  if(typeof trophyPhotos!=='undefined') B.push(['รูปถ้วยแชมป์', trophyPhotos]);
+  if(typeof photoSets!=='undefined') Object.keys(photoSets).forEach(s=>B.push(['ชุดรูป '+s, photoSets[s]]));
+  return B;
+}
+function imgSizeReport(){
+  let total=0; const rows=[];
+  __imgBuckets().forEach(([name,obj])=>{
+    let n=0,sz=0;
+    Object.keys(obj||{}).forEach(k=>{ const v=obj[k]; if(typeof v==="string" && v.slice(0,11)==="data:image/"){ n++; sz+=v.length; } });
+    if(n){ rows.push({name,n,sz}); total+=sz; }
+  });
+  return {rows,total};
+}
+async function shrinkAllImages(maxDim, q, onProgress){
+  const B=__imgBuckets(); let before=0, after=0, changed=0, seen=0;
+  const all=[];
+  B.forEach(([name,obj])=>Object.keys(obj||{}).forEach(k=>{
+    const v=obj[k]; if(typeof v==="string" && v.slice(0,11)==="data:image/") all.push([obj,k,v]);
+  }));
+  for(const [obj,k,v] of all){
+    before += v.length; seen++;
+    if(onProgress && seen%10===0) onProgress(seen, all.length);
+    const out = await shrinkDataURL(v, maxDim, q);
+    if(out){ obj[k]=out; after+=out.length; changed++; } else after += v.length;
+  }
+  return {before, after, changed, total:all.length};
+}
+async function apShrinkImages(){
+  const rep = imgSizeReport();
+  if(!rep.total){ alert("ไม่พบรูปที่ฝังเป็น data URL — ไม่มีอะไรให้ลด"); return; }
+  const mb = x => (x/1048576).toFixed(2)+" MB";
+  const detail = rep.rows.map(r=>"• "+r.name+": "+r.n+" รูป · "+mb(r.sz)).join("\n");
+  if(!confirm("รูปที่ฝังในข้อมูลตอนนี้:\n"+detail+"\n\nรวม "+mb(rep.total)+
+    "\n\nจะบีบอัดใหม่เป็น WebP ด้านยาวสุด 320px คุณภาพ 0.78\nกด OK เพื่อเริ่ม (ยังไม่เผยแพร่ ตรวจหน้าเว็บก่อนได้)")) return;
+  __pubStatus("กำลังลดขนาดรูป…");
+  const r = await shrinkAllImages(320, .78, (i,n)=>__pubStatus("กำลังลดขนาดรูป "+i+"/"+n+" …"));
+  __pubStatus(null);
+  try{ buildUI(); }catch(e){}
+  alert("ลดขนาดรูปเสร็จแล้ว ✅\nบีบอัดสำเร็จ "+r.changed+"/"+r.total+" รูป\n"+
+        mb(r.before)+" → "+mb(r.after)+"  (ลดลง "+(100-r.after/Math.max(r.before,1)*100).toFixed(1)+"%)\n\n"+
+        "ตรวจดูรูปบนหน้าเว็บก่อน ถ้าโอเคแล้วกด 📤 เผยแพร่");
+}
+
+
 // ================= publish (ฝังข้อมูลลงไฟล์แล้วเซฟ) =================
 document.getElementById('btnPublish').onclick = publish;
 async function publish(){
@@ -2532,17 +2618,44 @@ async function publish(){
   let payloadEnc;
   try{ payloadEnc = await gateEncrypt(payloadObj); }
   catch(e){ alert("⛔ เผยแพร่ไม่ได้: "+e.message+"\n(กันข้อมูลหลุดโดยไม่ได้เข้ารหัส)"); return; }
-  // เช็กขนาดข้อมูลก่อน — ลิมิตเซิร์ฟเวอร์ ~4MB ต่อครั้ง (รูปที่อัปใหม่จะถูกบีบอัดอัตโนมัติแล้ว)
-  const __body = JSON.stringify({password: pw, data: payloadEnc});
-  if(__body.length > 3900000){
-    alert("⚠️ ข้อมูลใหญ่เกินลิมิตเผยแพร่สด ("+(__body.length/1048576).toFixed(1)+" MB จากลิมิต ~3.7 MB)\nระบบจะดาวน์โหลดเป็นไฟล์สำรองให้แทน แล้วค่อยอัปไฟล์ขึ้น GitHub เอง\n(รูปที่อัปตั้งแต่ตอนนี้จะถูกบีบอัดอัตโนมัติ ทำให้ไฟล์เล็กลงเรื่อย ๆ)");
-  }else
-  // 1) ลองเผยแพร่สดผ่าน /api/publish (เขียนกลับ GitHub → เว็บอัปเดตเอง ~30 วิ)
+  // ---- ส่งขึ้นเซิร์ฟเวอร์ ----
+  // Vercel จำกัด body ~4.5MB ต่อ request แต่ข้อมูลเว็บโตเกินนั้นแล้ว
+  // จึงแบ่งส่งเป็นชิ้น (เก็บเป็น git blob) แล้วให้เซิร์ฟเวอร์ต่อกลับก่อน commit
+  const __payloadStr = JSON.stringify(payloadEnc);
+  const __bytes = new TextEncoder().encode(__payloadStr);
+  const __CHUNK = 2000000;   // ไบต์ต่อชิ้น → base64 ~2.7MB ต่อ request
+  const __b64bytes = u8 => { let s=""; for(let i=0;i<u8.length;i+=8192) s+=String.fromCharCode.apply(null,u8.subarray(i,i+8192)); return btoa(s); };
+  const __post = b => fetch('/api/publish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+  const __ok = "เผยแพร่ขึ้นเว็บแล้ว ✅\nเว็บจะอัปเดตเองใน ~30 วินาที (ลิงก์เดิม ทุกคนเห็น)\nรีเฟรชหน้าเว็บดูได้";
   try{
-    const res = await fetch('/api/publish', { method:'POST', headers:{'Content-Type':'application/json'}, body: __body });
-    if(res.ok){ alert("เผยแพร่ขึ้นเว็บแล้ว ✅\nเว็บจะอัปเดตเองใน ~30 วินาที (ลิงก์เดิม ทุกคนเห็น)\nรีเฟรชหน้าเว็บดูได้"); return; }
-    if(res.status!==404){ const t=await res.text(); if(!confirm("เผยแพร่สดไม่สำเร็จ ("+res.status+"): "+t+"\n\nดาวน์โหลดไฟล์สำรองแทนไหม?")) return; }
-  }catch(e){ /* ไม่มี api / ยังไม่ได้ตั้งค่า → ดาวน์โหลดไฟล์สำรอง */ }
+    if(__bytes.length <= 3000000){
+      __pubStatus("กำลังเผยแพร่…");
+      const res = await __post({password:pw, data:payloadEnc});
+      __pubStatus(null);
+      if(res.ok){ alert(__ok); return; }
+      if(res.status!==404){ const t=await res.text(); if(!confirm("เผยแพร่สดไม่สำเร็จ ("+res.status+"): "+t+"\n\nดาวน์โหลดไฟล์สำรองแทนไหม?")) return; }
+    }else{
+      const n = Math.ceil(__bytes.length/__CHUNK);
+      const shas = [];
+      for(let i=0;i<n;i++){
+        __pubStatus("กำลังส่งข้อมูล "+(i+1)+"/"+n+" ("+(__bytes.length/1048576).toFixed(1)+" MB)…");
+        const res = await __post({password:pw, chunk:__b64bytes(__bytes.subarray(i*__CHUNK,(i+1)*__CHUNK)), i:i, n:n});
+        if(!res.ok){
+          __pubStatus(null);
+          if(res.status===404) throw new Error("no api");   // ไม่ได้ตั้ง /api/publish → ไปโหมดดาวน์โหลดเงียบ ๆ
+          const t = await res.text();
+          if(!confirm("ส่งชิ้นที่ "+(i+1)+"/"+n+" ไม่สำเร็จ ("+res.status+"): "+t+"\n\nดาวน์โหลดไฟล์สำรองแทนไหม?")) return;
+          throw new Error("chunk "+(i+1)+" failed");
+        }
+        shas.push((await res.json()).sha);
+      }
+      __pubStatus("กำลังรวมข้อมูลและบันทึกขึ้น GitHub…");
+      const fin = await __post({password:pw, assemble:shas});
+      __pubStatus(null);
+      if(fin.ok){ alert(__ok); return; }
+      if(fin.status!==404){ const t=await fin.text(); if(!confirm("รวมข้อมูลไม่สำเร็จ ("+fin.status+"): "+t+"\n\nดาวน์โหลดไฟล์สำรองแทนไหม?")) return; }
+    }
+  }catch(e){ __pubStatus(null); /* ไม่มี api / ยังไม่ได้ตั้งค่า → ดาวน์โหลดไฟล์สำรอง */ }
   // 2) สำรอง: ดาวน์โหลดไฟล์ (โหมดเดิม)
   const content=document.getElementById('content'), nav=document.getElementById('seasonNav'), modal=document.getElementById('modalBox');
   const keep=[content.innerHTML, nav.innerHTML, modal.innerHTML];
@@ -2577,7 +2690,9 @@ const GATE_KEY = "rov_gate_k_v2";
 let gateOpen = false;
 let _gateDK = null, _gateEnv = null;   // กุญแจ+ซองเข้ารหัส เก็บไว้ตอนเผยแพร่ซ้ำ
 const _b64 = s => Uint8Array.from(atob(s), c=>c.charCodeAt(0));
-const _b64e = b => btoa(String.fromCharCode(...new Uint8Array(b)));
+const _b64e = b => { const u = new Uint8Array(b); let s = "";
+  for(let i=0;i<u.length;i+=8192) s += String.fromCharCode.apply(null, u.subarray(i,i+8192));
+  return btoa(s); };   // แบ่งเป็นช่วง — ถ้า spread ทั้งก้อน (หลาย MB) จะ stack overflow
 function gateEnvelope(){
   const raw = document.getElementById('saved-data').textContent.trim();
   if(!raw) return null;
