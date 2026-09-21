@@ -1525,28 +1525,43 @@ function hdWin(m){
   return best;
 }
 // เกณฑ์แถบในการ์ด คิดจากผู้เล่น "ทั้งลีก" ของช่วงที่เลือก (ไม่ขึ้นกับฟิลเตอร์)
-const HD_TOPN = 5;
+const HD_MIN_GAMES = 2;   // ต้องใช้ฮีโร่ตัวนั้นอย่างน้อยกี่เกม ถึงจะนับว่าเป็น "อันดับ 1 ของฮีโร่นี้"
 let _hdCache = null;
+// อันดับ 1 ของฮีโร่ตัวนั้นในลีก — ต้องมีคนอื่นใช้ฮีโร่เดียวกันด้วย (ไม่งั้นไม่เรียกว่าอันดับ 1)
 function hdBadges(tab){
   const stamp = tab + "#" + datasets.length;
   if(_hdCache && _hdCache.stamp === stamp) return _hdCache.m;
   const all = aggregate(rowsOf(tab));
-  const m = {};                       // key -> array ของแถบ (มากสุด 2 แถบ)
-  const push = (k, b) => { (m[k] = m[k] || []).push(b); };
-
-  // อันดับ DPM เฉลี่ยต่อฮีโร่ ของทั้งลีก
-  const pd = [];
-  all.forEach(p=>{ const t = hdTop(p.hd); if(t) pd.push({key:p.player.toUpperCase()+"|"+p.team, hero:t.hero, dpm:t.dpm, uses:t.uses}); });
-  pd.sort((a,b)=> b.dpm - a.dpm || b.uses - a.uses || (a.hero < b.hero ? -1 : 1));
-  pd.slice(0, HD_TOPN).forEach((x,i)=> push(x.key, {kind:"dpm", hero:x.hero, dpm:x.dpm, uses:x.uses, rank:i+1}));
-
-  // อันดับคิลเฉลี่ยต่อฮีโร่ ของทั้งลีก
-  const pk = [];
-  all.forEach(p=>{ const t = hdTopK(p.hd); if(t && t.kills>0) pk.push({key:p.player.toUpperCase()+"|"+p.team, hero:t.hero, kavg:t.kavg, kills:t.kills, uses:t.uses}); });
-  pk.sort((a,b)=> b.kavg - a.kavg || b.uses - a.uses || b.kills - a.kills || (a.hero < b.hero ? -1 : 1));
-  pk.slice(0, HD_TOPN).forEach((x,i)=> push(x.key, {kind:"kill", hero:x.hero, kavg:x.kavg, kills:x.kills, uses:x.uses, rank:i+1}));
-
-  // ไม่ติดทั้งสองอันดับ → ดูฮีโร่ที่ชนะ 100%
+  const H = {};
+  all.forEach(p=>{
+    const key = p.player.toUpperCase()+"|"+p.team;
+    Object.keys(p.hd||{}).forEach(h=>{
+      const e = p.hd[h];
+      (H[h] = H[h] || []).push({key, g:e[1], k:e[3]||0, d:e[0]});
+    });
+  });
+  const win = {k:{}, d:{}};
+  Object.keys(H).forEach(h=>{
+    const l = H[h];
+    if(l.length < 2) return;                       // มีคนใช้คนเดียว → ไม่มีคู่แข่ง
+    const top = val => {
+      const s = [...l].sort((a,b)=> val(b)-val(a) || b.g-a.g);
+      if(s[0].g < HD_MIN_GAMES) return null;       // เล่นน้อยเกินกว่าจะเรียกว่าเจ้าของฮีโร่
+      if(s.length > 1 && !(val(s[0]) > val(s[1]) + 1e-9)) return null;   // เสมอ → ไม่นับ
+      return s[0];
+    };
+    const bk = top(x=>x.k/x.g);
+    if(bk && bk.k > 0) (win.k[bk.key] = win.k[bk.key] || []).push({hero:h, val:bk.k/bk.g, kills:bk.k, uses:bk.g, rivals:l.length-1});
+    const bd = top(x=>x.d/x.g);
+    if(bd) (win.d[bd.key] = win.d[bd.key] || []).push({hero:h, val:bd.d/bd.g, uses:bd.g, rivals:l.length-1});
+  });
+  const pickBest = arr => [...arr].sort((a,b)=> b.uses-a.uses || b.val-a.val || (a.hero<b.hero?-1:1))[0];
+  const m = {};
+  const push = (k,b) => { (m[k] = m[k] || []).push(b); };
+  Object.keys(win.d).forEach(k=>{ const b = pickBest(win.d[k]);
+    push(k, {kind:"dpm", hero:b.hero, dpm:b.val, uses:b.uses, rivals:b.rivals, more:win.d[k].length}); });
+  Object.keys(win.k).forEach(k=>{ const b = pickBest(win.k[k]);
+    push(k, {kind:"kill", hero:b.hero, kavg:b.val, kills:b.kills, uses:b.uses, rivals:b.rivals, more:win.k[k].length}); });
   all.forEach(p=>{
     const k = p.player.toUpperCase()+"|"+p.team;
     if(m[k]) return;
@@ -1556,23 +1571,10 @@ function hdBadges(tab){
   _hdCache = {stamp, m};
   return m;
 }
-// ฮีโร่ที่ทำคิลเฉลี่ยต่อเกมสูงสุดของผู้เล่นคนนี้
-function hdTopK(m){
-  if(!m) return null;
-  let best = null;
-  Object.keys(m).forEach(h=>{
-    const g=m[h][1], k=m[h][3]||0; if(!g) return;
-    const v = k/g;
-    const cur = {hero:h, kavg:v, kills:k, uses:g};
-    if(!best || v > best.kavg + 1e-9 ||
-       (Math.abs(v-best.kavg) <= 1e-9 && (g > best.uses || (g === best.uses && h < best.hero)))) best = cur;
-  });
-  return best;
-}
 function hdBar(p, b){
   if(b.kind === "dpm"){
-    return `<div class="hdpm dpm" title="${esc(p.player)} ทำ DPM เฉลี่ยต่อฮีโร่สูงเป็นอันดับ ${b.rank} ของลีกในช่วงนี้ — ${esc(b.hero)} ${decT(b.dpm)} DPM จาก ${b.uses} เกม">
-      <span class="hdpm-lb"><em>🔥</em><span class="lbt">TOP ${b.rank} DPM</span></span>
+    return `<div class="hdpm dpm" title="${esc(p.player)} ทำ DPM เฉลี่ยสูงสุดของลีกในฮีโร่ ${esc(b.hero)} — ${decT(b.dpm)} DPM จาก ${b.uses} เกม เหนือผู้เล่นอีก ${b.rivals} คนที่ใช้ฮีโร่ตัวนี้${b.more>1?` · เป็นอันดับ 1 ทั้งหมด ${b.more} ฮีโร่`:''}">
+      <span class="hdpm-lb"><em>🔥</em><span class="lbt">DPM อันดับ 1</span></span>
       ${heroImg(b.hero,17)}
       <b>${esc(b.hero)}</b>
       <span class="hdpm-v">${decT(b.dpm)}</span>
@@ -1580,8 +1582,8 @@ function hdBar(p, b){
     </div>`;
   }
   if(b.kind === "kill"){
-    return `<div class="hdpm kill" title="${esc(p.player)} ทำคิลเฉลี่ยต่อฮีโร่สูงเป็นอันดับ ${b.rank} ของลีกในช่วงนี้ — ${esc(b.hero)} ${b.kills} คิลจาก ${b.uses} เกม (เฉลี่ย ${dec(b.kavg)}/เกม)">
-      <span class="hdpm-lb"><em>⚔️</em><span class="lbt">TOP ${b.rank} AVG K</span></span>
+    return `<div class="hdpm kill" title="${esc(p.player)} ทำคิลเฉลี่ยสูงสุดของลีกในฮีโร่ ${esc(b.hero)} — ${b.kills} คิลจาก ${b.uses} เกม (เฉลี่ย ${dec(b.kavg)}/เกม) เหนือผู้เล่นอีก ${b.rivals} คนที่ใช้ฮีโร่ตัวนี้${b.more>1?` · เป็นอันดับ 1 ทั้งหมด ${b.more} ฮีโร่`:''}">
+      <span class="hdpm-lb"><em>⚔️</em><span class="lbt">คิล อันดับ 1</span></span>
       ${heroImg(b.hero,17)}
       <b>${esc(b.hero)}</b>
       <span class="hdpm-v">${dec(b.kavg)}</span>
