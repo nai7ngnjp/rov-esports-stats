@@ -1706,12 +1706,21 @@ function assignRanks(list){
   const rc = {};
   el.forEach(p=>{ rc[p.role]=(rc[p.role]||0)+1; p.roleRank=rc[p.role]; });
 }
+// ป้ายอันดับแบบบอกสองชั้น: อันดับในทัวร์ + อันดับในตำแหน่ง
+function rankChipHtml(r, role, label){
+  const cls = r.tour===1 ? 'top' : (r.tour===2 ? 'silver' : (r.role===1 ? 'role' : ''));
+  const ic  = r.tour===1 ? '🏆' : (r.tour===2 ? '🥈' : (r.role===1 ? '🥇' : '🎖'));
+  const bits = ['อันดับ ' + r.tour + ' ของทัวร์'];
+  if(r.nRole > 1) bits.push('อันดับ ' + r.role + ' ของ ' + esc(role));
+  return '<span class="rankbadge ' + cls + '">' + ic + ' ' + bits.join(' · ') + (label ? ' · ' + label : '') + '</span>';
+}
 function rankBadge(p){
-  if(p.rank===1) return '<span class="rankbadge top">🏆 อันดับ 1 ของทัวร์</span>';
-  if(p.rank===2) return '<span class="rankbadge silver">🥈 อันดับ 2 ของทัวร์</span>';
-  if(p.roleRank===1) return '<span class="rankbadge role">🥇 อันดับ 1 ของ '+esc(p.role)+'</span>';
-  if(p.rank) return '<span class="rankbadge">#'+p.rank+'</span>';
-  return '<span class="lowgames">เกมยังไม่ถึงเกณฑ์จัดอันดับ</span>';
+  if(!p.rank) return '<span class="lowgames">เกมยังไม่ถึงเกณฑ์จัดอันดับ</span>';
+  const rr = p.roleRank ? ' · อันดับ '+p.roleRank+' ของ '+esc(p.role) : '';
+  if(p.rank===1)     return '<span class="rankbadge top">🏆 อันดับ 1 ของทัวร์'+rr+'</span>';
+  if(p.rank===2)     return '<span class="rankbadge silver">🥈 อันดับ 2 ของทัวร์'+rr+'</span>';
+  if(p.roleRank===1) return '<span class="rankbadge role">🥇 อันดับ 1 ของ '+esc(p.role)+' · อันดับ '+p.rank+' ของทัวร์</span>';
+  return '<span class="rankbadge">#'+p.rank+' ของทัวร์'+rr+'</span>';
 }
 function rowsOf(tab){
   if(tab.startsWith("__all__›")) return weekOnly(tab.slice(8)).flatMap(d=>d.rows);
@@ -1719,19 +1728,24 @@ function rowsOf(tab){
   return d ? d.rows : [];
 }
 function computeBadges(list){
-  list.forEach(p=>{ p.badges=[]; p.top={}; });
+  list.forEach(p=>{ p.badges=[]; p.top={}; p.rankOf={}; });
   const el = eligible(list);
   if(!el.length) return;
   KEYSTATS.forEach(([k,label,dir])=>{
     const sgn = dir==="lo"?1:-1;
     const sorted = [...el].sort((a,b)=>sgn*((a[k]??0)-(b[k]??0)));
-    const top = sorted[0];
-    top.badges.push('<span class="rankbadge top">🏆 ทัวร์ · '+label+'</span>');
-    top.top[k] = 'tour';
-    const second = sorted[1];
-    if(second){ second.badges.push('<span class="rankbadge silver">🥈 ทัวร์ อันดับ 2 · '+label+'</span>'); second.top[k]='silver'; }
+    const nRole = {}; sorted.forEach(p=>{ nRole[p.role]=(nRole[p.role]||0)+1; });
     const seen = {};
-    sorted.forEach(pp=>{ if(!seen[pp.role]){ seen[pp.role]=true; if(pp!==top){ pp.badges.push('<span class="rankbadge role">🥇 '+esc(pp.role)+' · '+label+'</span>'); if(!pp.top[k]) pp.top[k]='role'; } } });
+    sorted.forEach((p,i)=>{
+      const tour = i+1;
+      seen[p.role] = (seen[p.role]||0)+1;
+      const r = {tour, role:seen[p.role], nRole:nRole[p.role]};
+      p.rankOf[k] = r;
+      if(tour<=2 || r.role===1){
+        p.badges.push(rankChipHtml(r, p.role, label));
+        p.top[k] = tour===1 ? 'tour' : (tour===2 ? 'silver' : 'role');
+      }
+    });
   });
 }
 // ================= Homepage (แดชบอร์ด) =================
@@ -2160,7 +2174,13 @@ function apSaveTeamFacts(){
 function statCell(p,k,val,label){
   const t = p.top && p.top[k];
   const cls = t==='tour' ? ' s-top' : t==='silver' ? ' s-2nd' : t==='role' ? ' s-role' : '';
-  const ti = t==='tour' ? ' title="อันดับ 1 ของทัวร์ · '+label+'"' : t==='silver' ? ' title="อันดับ 2 ของทัวร์ · '+label+'"' : t==='role' ? ' title="อันดับ 1 ของ '+esc(p.role)+' · '+label+'"' : '';
+  const rk = p.rankOf && p.rankOf[k];
+  let ti = '';
+  if(t && rk){
+    const bits = ['อันดับ '+rk.tour+' ของทัวร์'];
+    if(rk.nRole>1) bits.push('อันดับ '+rk.role+' ของ '+esc(p.role));
+    ti = ' title="'+bits.join(' · ')+' · '+label+'"';
+  }
   return '<div class="'+cls+'"'+ti+'><b>'+val+'</b><span>'+label+'</span></div>';
 }
 function currentList(){
@@ -2910,12 +2930,9 @@ function achievementsHtml(name, team){
   KEYSTATS.forEach(([k,label,dir])=>{
     const sgn = dir==="lo"?1:-1;
     const sorted = [...el].sort((a,b)=>sgn*((a[k]??0)-(b[k]??0)));
-    if(sorted[0]===me) out.push('<span class="rankbadge top">🏆 อันดับ 1 ของทัวร์ · '+label+'</span>');
-    else{
-      if(sorted[1]===me) out.push('<span class="rankbadge silver">🥈 อันดับ 2 ของทัวร์ · '+label+'</span>');
-      const rl = sorted.filter(p=>p.role===me.role);
-      if(rl[0]===me) out.push('<span class="rankbadge role">🥇 อันดับ 1 ของ '+esc(me.role)+' · '+label+'</span>');
-    }
+    const rl = sorted.filter(p=>p.role===me.role);
+    const r = {tour: sorted.indexOf(me)+1, role: rl.indexOf(me)+1, nRole: rl.length};
+    if(r.tour && (r.tour<=2 || r.role===1)) out.push(rankChipHtml(r, me.role, label));
   });
   return out.join(" ") || '<span class="lowgames">ยังไม่มีสถิติอันดับ 1</span>';
 }
