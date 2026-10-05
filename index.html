@@ -1034,6 +1034,7 @@ h4.wkhead{margin:20px 0 8px;font-size:13.5px;color:var(--dim);font-weight:700;le
         <option value="avgmvp">เรียงตาม: AVG MVP</option>
         <option value="kda">เรียงตาม: AVG KDA</option>
         <option value="kavg">เรียงตาม: AVG Kills</option>
+        <option value="k">เรียงตาม: คิลรวม</option>
         <option value="davg">เรียงตาม: AVG Deaths</option>
         <option value="aavg">เรียงตาม: AVG Assists</option>
         <option value="dpm">เรียงตาม: DPM</option>
@@ -1699,8 +1700,8 @@ function withRating(list){
   return list;
 }
 const KEYSTATS = [
-  ["avgmvp","AVG MVP","hi"],["kda","AVG KDA","hi"],["kavg","AVG Kills","hi"],["davg","AVG Deaths","lo"],
-  ["aavg","AVG Assists","hi"],["dpm","DPM","hi"],["gpm","GPM","hi"],["part","%KP","hi"]
+  ["avgmvp","AVG MVP","hi"],["kda","AVG KDA","hi"],["kavg","AVG Kills","hi"],["k","คิลรวม","hi"],
+  ["davg","AVG Deaths","lo"],["aavg","AVG Assists","hi"],["dpm","DPM","hi"],["gpm","GPM","hi"],["part","%KP","hi"]
 ];
 function minGames(list){
   const maxG = Math.max(...list.map(p=>p.games));
@@ -2835,7 +2836,7 @@ function render(){
   }else{
     const hasPotm = list.some(p=>p.potm>0);
     const SC=[["","",0],["rank","#",1],["ovr","OVR",1],["player","นักแข่ง",0],["team","ทีม",0],["role","ตำแหน่ง",0],
-      ["games","เกม",1],["wins","W-L",1],["avgmvp","AVG MVP",1],["kda","KDA",1],["kavg","K",1],["davg","D",1],
+      ["games","เกม",1],["wins","W-L",1],["avgmvp","AVG MVP",1],["kda","KDA",1],["k","คิลรวม",1],["kavg","K",1],["davg","D",1],
       ["aavg","A",1],["dpm","DPM",1],["gpm","GPM",1],["part","%KP",1],["mvp","MVP",1]]
       .concat(hasPotm?[["potm","POTM",1]]:[]);
     c.innerHTML = `<div style="overflow-x:auto"><table><thead><tr>${
@@ -3342,6 +3343,7 @@ function openPlayer(name, team){
       ${head.series?`<div class="srow"><span class="sl">แมตช์ (ซีรีส์)</span><span class="sv">${head.sw}-${head.sl} (${dec(head.swr,2)}%)</span></div>`:''}
       <div class="srow"><span class="sl">AVG MVP</span><span class="sv">${dec(head.avgmvp||0)}</span></div>
       <div class="srow"><span class="sl">AVG KDA</span><span class="sv">${dec(head.kda)}</span></div>
+      <div class="srow"><span class="sl">TOTAL KILLS</span><span class="sv">${head.k}</span></div>
       <div class="srow"><span class="sl">AVG KILLS</span><span class="sv">${dec(head.kavg)}</span></div>
       <div class="srow"><span class="sl">AVG DEATHS</span><span class="sv">${dec(head.davg)}</span></div>
       <div class="srow"><span class="sl">AVG ASSISTS</span><span class="sv">${dec(head.aavg)}</span></div>
