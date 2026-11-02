@@ -997,6 +997,7 @@ h4.wkhead{margin:20px 0 8px;font-size:13.5px;color:var(--dim);font-weight:700;le
 .mo-chip b{margin:0 2px}
 .mo-chip i{font-style:normal;opacity:.6;font-size:11px}
 @media(max-width:520px){.mo-grid{grid-template-columns:1fr}}
+.achsub{font-size:11px;opacity:.65;margin:6px 0 2px}
 </style>
 </head>
 <body>
@@ -1757,11 +1758,16 @@ function rankChipHtml(r, role, label){
   const ic  = r.tour===1 ? '🏆' : (r.tour===2 ? '🥈' : (r.role===1 ? '🥇' : '🎖'));
   const bits = ['อันดับ ' + r.tour + ' ของทัวร์'];
   if(r.nRole > 1) bits.push('อันดับ ' + r.role + ' ของ ' + esc(role));
-  return '<span class="rankbadge ' + cls + '">' + ic + ' ' + bits.join(' · ') + (label ? ' · ' + label : '') + '</span>';
+  return '<span class="rankbadge ' + cls + '">' + ic + ' ' + (label ? '<b>' + label + '</b> ' : '') + bits.join(' · ') + '</span>';
+}
+function rankKeyLabel(){
+  const sel = document.getElementById('fSort') ? document.getElementById('fSort').value : 'ovr';
+  const ks = KEYSTATS.find(s=>s[0]===sel);
+  return ks ? ks[1] : 'OVR';
 }
 function rankBadge(p){
   if(!p.rank) return '<span class="lowgames">เกมยังไม่ถึงเกณฑ์จัดอันดับ</span>';
-  const rr = p.roleRank ? ' · อันดับ '+p.roleRank+' ของ '+esc(p.role) : '';
+  const rr = (p.roleRank ? ' · อันดับ '+p.roleRank+' ของ '+esc(p.role) : '') + ' · ' + rankKeyLabel();
   if(p.rank===1)     return '<span class="rankbadge top">🏆 อันดับ 1 ของทัวร์'+rr+'</span>';
   if(p.rank===2)     return '<span class="rankbadge silver">🥈 อันดับ 2 ของทัวร์'+rr+'</span>';
   if(p.roleRank===1) return '<span class="rankbadge role">🥇 อันดับ 1 ของ '+esc(p.role)+' · อันดับ '+p.rank+' ของทัวร์</span>';
@@ -3119,6 +3125,10 @@ function achievementsHtml(name, team){
   const el = eligible(pool);
   if(!el.some(p=>p===me)) return '<span class="lowgames">เกมยังไม่ถึงเกณฑ์จัดอันดับ ('+minGames(pool)+' เกมขึ้นไป)</span>';
   const out=[];
+  { const so = [...el].sort((a,b)=> -((a.ovr??0)-(b.ovr??0)));
+    const rl = so.filter(p=>p.role===me.role);
+    out.push(rankChipHtml({tour: so.indexOf(me)+1, role: rl.indexOf(me)+1, nRole: rl.length}, me.role, 'OVR รวม'));
+    out.push('<div class="achsub">อันดับรายสแตท</div>'); }
   KEYSTATS.forEach(([k,label,dir])=>{
     const sgn = dir==="lo"?1:-1;
     const sorted = [...el].sort((a,b)=>sgn*((a[k]??0)-(b[k]??0)));
@@ -3126,7 +3136,7 @@ function achievementsHtml(name, team){
     const r = {tour: sorted.indexOf(me)+1, role: rl.indexOf(me)+1, nRole: rl.length};
     if(r.tour && (r.tour<=2 || r.role===1)) out.push(rankChipHtml(r, me.role, label));
   });
-  return out.join(" ") || '<span class="lowgames">ยังไม่มีสถิติอันดับ 1</span>';
+  return out.length>2 ? out.join(" ") : out[0]+' <span class="lowgames">ยังไม่ติดอันดับ 1–2 รายสแตท</span>';
 }
 // ================= admin panel =================
 function apClose(){ document.getElementById('adminOverlay').classList.remove('show'); }
